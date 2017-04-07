@@ -26,9 +26,9 @@ RUN yum install -y https://centos7.iuscommunity.org/ius-release.rpm \
     && tar --strip-components=1 -xvzf docker-17.03.1-ce.tgz -C /usr/local/bin \
     && rm /docker-17.03.1-ce.tgz \
     # install container_generator
-    && curl -L https://api.github.com/repos/NETHINKS/opennms-docker-env/tarball > repo.tar.gz \
+    && curl -L https://github.com/NETHINKS/opennms-docker-env/archive/1.0.0.tar.gz > repo.tar.gz \
     && tar -xzvf repo.tar.gz -C /opt \
-    && mv /opt/NETHINKS-opennms-docker-env* /opt/opennms-docker-env \
+    && mv /opt/opennms-docker-env* /opt/opennms-docker-env \
     && rm repo.tar.gz \
     # cleanup for a smaller Docker image
     && yum -y clean all
