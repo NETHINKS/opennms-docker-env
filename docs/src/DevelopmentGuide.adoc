@@ -1,0 +1,74 @@
+= NETHINKS Docker Environment for OpenNMS - Developers Guide
+Michael Batz <Michael.Batz@nethinks.com>
+:toc: left
+:toclevels: 2
+:icons: font
+:source-highlighter: pygments
+
+
+== Docker Images
+
+=== Design of Images
+
+Each Docker Image for the environment is built on the latest Centos release and contains the following scripts in _/opt/containerscripts_, that manages the container:
+
+*run.sh*::
+  This script will be executed, when the container starts.
+
+*init.sh*::
+  Will initialize the environment on the container's first start.
+
+*prestart.sh*::
+  This script will be executed before the software in the container is started.
+
+*export.sh*::
+  Script for exporting data to _/data/export/<container>_
+
+*import.sh*::
+  Can be used for importing data.
+
+*support.sh*::
+  Creates support data for the container.
+
+All scripts must be present in each container. If a script is not needed, it should be empty.
+
+=== Data Handling
+
+All data, that is managed by the container, should be stored in _/data/container_. Import of data should only be done on the container's first start from _/data/init_ within the container. Export of data is done by executing the export.sh script to _/data/export_.
+
+=== Tagging of Images
+
+Each image should be tagged using the following format:
+
+[source]
+----
+<software version>-<build number>
+example: 18.0.4-1
+----
+
+The first part contains the version of the software packed in the container. The second part contains the build number of the Docker Image. It starts with "1" and increases for each build. So, it is possible to build mulitple Docker Images for the same software version, for example to fix bugs in the image itself.
+
+=== Building of Images
+
+All images can be built by using the test environment in the _env_test_ directory with _docker-compose_:
+
+[source,bash]
+----
+cd env_test
+docker-compose build
+----
+
+
+== Version Schema of the Docker Environment
+
+The Docker Environment itself has a version in the following format:
+
+[source]
+----
+<meridian/horizon>-<major version>.<minor version>.<bugfix release>
+example: horizon-1.0.0
+----
+
+The first part of the version string defines whether it is an environment for OpenNMS Horizon or Meridian. After that, major, minor and bugfix release number of the environment follows.
+
+A change in the major version also contains a major version change of OpenNMS, which means the migration of configuration files, etc. A minor version change also contains a minor version change of OpenNMS. A change in the bugfix release number only contains bugfixes (changes in build numbers), which should not mean any migration of data.

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<userinfo xmlns="http://xmlns.opennms.org/xsd/users">
+    <header>
+        <rev>.9</rev>
+        <created>Mittwoch, 24. Juni 2015 08:10:30 GMT</created>
+        <mstation>master.nmanage.com</mstation>
+    </header>
+    <users>
+        
+        <user>
+            <user-id>api</user-id>
+            <full-name>API User</full-name>
+            <user-comments>user for API access</user-comments>
+            <password>BDFC2DB0AA599F5919E565C328216A51</password>
+        </user>
+        
+        <user>
+            <user-id>admin</user-id>
+            <full-name>Administrator</full-name>
+            <user-comments>Default administrator, do not delete</user-comments>
+            <password>BDFC2DB0AA599F5919E565C328216A51</password>
+        </user>
+    </users>
+</userinfo>

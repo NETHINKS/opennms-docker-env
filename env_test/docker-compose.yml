@@ -1,0 +1,160 @@
+version: "2.1"
+networks:
+  default:
+    enable_ipv6: true
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.name: "onmsenv0"
+    ipam:
+      config:
+      - subnet: 192.168.99.0/24
+      - subnet: fd00:1::/48
+
+services:
+    management:
+        image: nethinks/opennmsenv-management:1.0.0-1
+        build: ../images/management
+        ports:
+        - "2222:22"
+        environment:
+          SSH_USER: "admin"
+          SSH_PASSWORD: "secret1234"
+        volumes:
+        - export:/data/export
+        - management:/data/container
+        - alarmforwarder:/data/all-containers/alarmforwarder
+        - grafana:/data/all-containers/grafana
+        - yourdashboard:/data/all-containers/yourdashboard
+        - pris:/data/all-containers/pris
+        - cassandra:/data/all-containers/cassandra
+        - nginx:/data/all-containers/nginx
+        - opennms:/data/all-containers/opennms
+        - rrd:/data/all-containers/rrd
+        - postgres:/data/all-containers/postgres
+        - ./init/management:/data/init
+        - /var/run/docker.sock:/var/run/docker.sock
+    postgres:
+        image: nethinks/opennmsenv-postgres:9.5.3-1
+        build: ../images/postgres
+        environment:
+          POSTGRES_USER: "postgres"
+          POSTGRES_PASSWORD: "secret1234"
+        volumes:
+          - export:/data/export
+          - postgres:/data/container
+          - ./init/postgres:/data/init
+    cassandra:
+        image: nethinks/opennmsenv-cassandra:3.9-1
+        build: ../images/cassandra
+        environment:
+          CASSANDRA_USER: "cassandra"
+          CASSANDRA_PASSWORD: "secret1234"
+        volumes:
+          - export:/data/export
+          - cassandra:/data/container
+          - ./init/cassandra:/data/init
+    alarmforwarder:
+        image: nethinks/opennmsenv-alarmforwarder:1.0.1-1
+        build: ../images/alarmforwarder
+        environment:
+          ADMIN_PASSWORD: "secret1234"
+          DB_SERVER: "postgres"
+          DB_NAME: "alarmforwarder"
+          DB_USER: "postgres"
+          DB_PASSWORD: "secret1234"
+          ONMS_URL: "http://opennms:8980/opennms/rest"
+          ONMS_USER: "api"
+          ONMS_PASSWORD: "secret1234"
+        depends_on:
+          - postgres
+        volumes:
+          - export:/data/export
+          - alarmforwarder:/data/container
+          - ./init/alarmforwarder:/data/init
+    grafana:
+        image: nethinks/opennmsenv-grafana:3.1.1-1
+        build: ../images/grafana
+        environment:
+          ADMIN_PASSWORD: "secret1234"
+          ONMS_URL: "http://opennms:8980/opennms"
+          ONMS_USER: "api"
+          ONMS_PASSWORD: "secret1234"
+        volumes:
+          - export:/data/export
+          - grafana:/data/container
+          - ./init/grafana:/data/init
+    yourdashboard:
+        image: nethinks/opennmsenv-yourdashboard:0.3-1
+        build: ../images/yourdashboard
+        volumes:
+          - export:/data/export
+          - yourdashboard:/data/container
+          - ./init/yourdashboard:/data/init
+    pris:
+        image: nethinks/opennmsenv-pris:1.1.5-1
+        build: ../images/pris
+        volumes:
+          - export:/data/export
+          - pris:/data/container
+          - ./init/pris:/data/init
+    opennms:
+        image: nethinks/opennmsenv-opennms:18.0.4-1
+        build: 
+          context: ../images/opennms
+          args:
+            build_customrepo: https://opennmsdeploy.nethinks.com/repo/horizon/18.0.4/
+        links:
+          - postgres
+          - cassandra
+        depends_on:
+          - postgres
+          - cassandra
+        privileged: true
+        environment:
+          DB_SERVER: "postgres"
+          DB_USER: "postgres"
+          DB_PASSWORD: "secret1234"
+          ENABLE_NEWTS: "true"
+        volumes:
+          - export:/data/export
+          - opennms:/data/container
+          - rrd:/data/rrd
+          - ./init/opennms:/data/init
+    nginx:
+        depends_on: []
+        image: nethinks/opennmsenv-nginx:1.10.2-1
+        build: ../images/nginx
+        ports:
+        - 80:80
+        - 443:443
+        privileged: false
+        restart: always
+        volumes:
+        - export:/data/export
+        - nginx:/data/container
+        - ./init/nginx:/data/init
+    ipv6helper:
+        depends_on: []
+        image: nethinks/opennmsenv-ipv6helper:1.0.0-1
+        build: ../images/ipv6helper
+        privileged: true
+        restart: always
+        network_mode: host
+        environment:
+          CONF_IP6NET: "fd00:1::/48"
+          CONF_BRIDGE_INTERFACE: "onmsenv0"
+        volumes:
+        - /lib/modules:/lib/modules:ro
+
+volumes:
+  alarmforwarder:
+  grafana:
+  yourdashboard:
+  pris:
+  cassandra:
+  export:
+  nginx:
+  opennms:
+  rrd:
+  postgres:
+  management:

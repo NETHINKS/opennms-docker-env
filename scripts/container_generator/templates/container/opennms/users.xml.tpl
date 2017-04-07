@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<userinfo xmlns="http://xmlns.opennms.org/xsd/users">
+    <header>
+        <rev>.9</rev>
+        <created>Mittwoch, 24. Juni 2015 08:10:30 GMT</created>
+        <mstation>master.nmanage.com</mstation>
+    </header>
+    <users>
+        {% for user in users %}
+        <user>
+            <user-id>{{ user }}</user-id>
+            <full-name>{{ users[user]['name'] }}</full-name>
+            <user-comments>{{ users[user]['description'] }}</user-comments>
+            <password>{{ users[user]['password'] }}</password>
+        </user>
+        {% endfor %}
+    </users>
+</userinfo>

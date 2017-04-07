@@ -1,0 +1,553 @@
+= NETHINKS Docker Environment for OpenNMS - Users Guide
+Michael Batz <Michael.Batz@nethinks.com>
+:toc: left
+:toclevels: 2
+:icons: font
+:source-highlighter: pygments
+
+== Design of the OpenNMS Docker Environment
+This is the Docker Environment for the open source network managament plattform OpenNMS. It is designed for testing purposes and smaller production setups and provides the following software:
+
+* OpenNMS
+* PostgreSQL
+* Nginx
+* Alarmforwarder
+* Cassandra
+* Grafana
+* yourDashboard
+
+The environment is based on Docker Engine and Docker Compose. All related Docker Images are provided on https://hub.docker.com/r/nethinks/[Docker Hub]. 
+
+The script _container_generator.py_ creates an environment based on a few questions (e.g. which images should be used, which passwords should be set for OpenNMS, ...). The result contains a generated _docker_compose.yml_ file and an _init_ directory, which contains some configuration, that will be loaded on the environment's first start.
+
+The environment's base is OpenNMS, PostgreSQL and Nginx. Nginx provides a central SSL reverse proxy for all webservers of the environment (e.g. OpenNMS WebUI, or Grafana WebUI,...). A management container can be accessed via SSH to change configuration files.
+
+=== Supported Hostsystems
+The Docker Environment (especially the setup of Docker Engine and Docker Compose) was tested with CentOS 7. It should also run on other distributions, maybe some changes on the setup of Docker Engine/Docker Compose are required.
+
+=== Limitations / Known Issues
+The following points are known limitations and issues:
+
+*Only small/medium sized environments*::
+  The Docker Environment has only been tested with running all the containers on one physical host. So, it is designed and tested for small and medium sized OpenNMS environments, where all the software can run on one host. In the future, there may be a cluster support.
+
+*OpenNMS Horizon only*::
+  Currently, only OpenNMS Horizon is supported, but in the future, Meridian support will be available.
+
+*Cassandra support for testing only*::
+  Cassandra support is only for testing purposes at the moment, as there is only one container which handles all the data.
+
+*IPV6 NAT support*::
+  IPv6 support is provided with the ipv6helper container, which provides IPv6 NAT from the particular containers to the outside world. At this time, an incomming IPv6 connection from outside to the containers is not supported.
+
+
+== Setup
+
+=== Generation of a Docker Environment
+For the generation of the Docker Environment, the software Docker Engine and Docker Compose should be installed. After that, simply use the _env_bootstrap/docker_compose.yml_ file to start the Generation Environment:
+
+[source,bash]
+----
+cd env_bootstrap
+docker-compose up -d
+----
+
+You can then connect to the started container via SSH using the following command and the password _secret1234_:
+
+[source,bash]
+----
+ssh -p 2223 root@127.0.0.1
+----
+
+In the box, start the script container_generator.py:
+
+[source,bash]
+----
+cd /opt/opennms-docker-env/scripts/container_generator/
+./container_generator.py
+----
+
+The script asks for some parameters for the generation of the environment and creates an _output_ directory which contains the following data:
+
+* docker-compose.yml
+* init directory for initializing of the defined containers
+* if defined: download of the docker images
+* if defined: download of the required software (Docker Engine, Docker Compse)
+* if defined: install.sh for Docker Images and Docker Engine/Docker Compose setup
+
+=== Setup of the generated Environment
+The generated environment can be installed on any latest Linux distribution. It has been tested under Centos 7. Simply use the files from the _output_ directory. Execute _install.sh_ to install Docker Engine, Docker Compose and the required images:
+
+[source,bash]
+----
+./install.sh
+----
+
+You can now start the generated environment with docker-compose:
+
+[source,bash]
+----
+docker-compose up -d
+----
+
+==== optional: Change network of docker0
+By default, Docker Engine creates a network interface named _docker0_ with an IP address 172.17.0.0/16. If you need to change it, please create the following configuration file /etc/docker/daemon.json:
+
+[source,json]
+----
+{
+  "bip": "192.168.0.1/24"
+}
+----
+
+==== optional: Move RRDs to another partition
+Sometimes, it is required to move the OpenNMS RRD data to another physical disc, to improve the I/O performance. To do so in the Docker Environment, find the mountpoint of the RRDs with _docker volume inspect_:
+
+[source,bash]
+----
+docker volume inspect <opennms volume>
+----
+
+After that, stop the environment, move the RRD files to the other disk, create a symbolic link and start the environment again. For example, if the mountpoint of the OpenNMS RRD volume is _/var/lib/docker/volumes/output_rrd/_data_, and the mountpoint of the other physical disk is _/mnt/opennms-rrd, you'll can do the following: 
+
+[source,bash]
+----
+docker-compose down
+mv /var/lib/docker/volumes/output_rrd/ /mnt/opennms-rrd
+ln -s /mnt/opennms-rrd /var/lib/docker/volumes/output_rrd/
+docker-compose up -d
+----
+
+
+=== Management of the Environment
+The Docker Environment can be managed by using the management container. It provides an SSH server which can be acccessed with the following command and the password chosen during the setup:
+
+[source,bash]
+----
+ssh -p 2222 root@host
+----
+
+It contains some nice tools (e.g. ping, traceroute, telnet, snmpwalk, ...) and access to the data and configuration files of all containers in _/data/all-containers_. It also contains a docker client to start/stop containers.
+
+
+
+
+
+== Operating
+The following section describes the operational concepts of the Docker Environment.
+
+
+=== Migration of an existing OpenNMS installation
+To migrate an existing OpenNMS installation into the new Docker Environment, the following steps are required:
+
+[options=interactive]
+* [ ] Back up the existing installation
+* [ ] Setup the OpenNMS Docker Environment, but do not start the environment yet
+* [ ] Place the (migrated, if necessary) data of the existing installation in the _init_ directory of the Docker Environment
+* [ ] Start the environment
+
+At first, the data of an existing setup must be secured. For OpenNMS, there are the configuration files, a database dump, RRD files and (if necessary) further files. If a version upgrade should be done with the migration, the secured data must also be migrated for the new version.
+
+After that, the OpenNMS Docker Environment must be installed, but should not be started yet. The environment has the directory _init_, which contains a subdirectory for every container. The data for initializing of the environment must be placed there. Please see the section <<Import and Export of Data>> to see the directory structure for each container. On the environment's first start, these data will be imported one-time (they will be copied and can be deleted from the _init_ directory). The environment with the imported data can now be used.
+
+
+=== Configuration Changes
+Configuration changes for OpenNMS and the other provided software can be done with the management container. You can connect via SSH into the management container and find the data of all other containers in _/data/all-containers/<container name>_. Simply change the configuration files you like and restart the required container by using the _docker_ commands:
+
+[source,bash]
+----
+docker ps
+docker stop <container-name>
+docker start <container-name>
+----
+
+A _docker ps_ returns a list with all running docker containers. You can also find the container name in the list. The _docker start/stop_ commands will stop and start the container.
+
+
+=== Backup
+A manual backup of the Environment can be done by executing the following command in the management container:
+
+[source,bash]
+----
+/opt/managerscripts/command_for_all.sh export
+----
+
+When the backup has finished, the exported data are located in _/data/export_ (in management container or on the named volume) and can be copied to an external storage medium.
+
+
+A backup to a SMB fileserver can also be done automatically using a cronjob. Simply put the following configuration in _/data/container/etc/backup.conf_:
+
+[source,bash]
+----
+OUT_SMB_SHARE=//10.1.2.2/backup
+OUT_SMB_FOLDER=/dockerenv
+OUT_SMB_USER=backup
+OUT_SMB_PASSWORD=secret1234
+----
+
+If the file is present, a daily cronjob will execute the backup at 09:00 p.m. to the configured SMB server.
+
+TIP: The container_generator script will also ask you for the parameters above and can create the required configuration.
+
+
+
+=== Restore
+
+A restore of the whole environment on a new hardware requires the following data:
+
+* supported operating system
+* generated Docker Environment in the original version (Docker Engine, Docker Compose, Docker Images, docker-compose.yml and the init directory)
+* backup of the environment
+
+The generated Docker Enviroment consists of the following directoy structure:
+
+[source]
+----
+docker-compose.yml
+/init
+  /opennms
+  /postgres
+  /<...>
+----
+
+The following steps has to be done for a restore:
+
+[options=interactive]
+* [ ] setup of the operating system
+* [ ] setup of the generated Docker Environment (Docker-Engine, Docker Compose, images, configuration)
+* [ ] replacement of the _init_ directory of the generated environment with the backup
+* [ ] start of the environment
+
+
+
+=== Major Update
+
+A major update contains a change of the major version of OpenNMS. The database schema and configuration files needs to be migrated. For a major update, the following steps needs to be done:
+
+[options=interactive]
+* [ ] preparation within a testing environment
+[options=interactive]
+** [ ] creation of a new version of the Docker Environment
+** [ ] data export from the existing environment
+** [ ] migration of the exported data in the testing environment
+* [ ] update on live system
+[options=interactive]
+** [ ] creation of a new version of the Docker Environment with the migrated data
+** [ ] stop of the old environment
+** [ ] start of the new environment
+
+First of all, a testing environment with the new version of the Docker Environment will be created. After that, a data export from the existing environment will be done. The following command needs to be executed on the management container:
+
+[source,bash]
+----
+/opt/managerscripts/command_for_all.sh export
+----
+
+In the testing environment, the exportet data will now be migrated step by step (e.g. OpenNMS configuration files, but also files from further containers). The intention is, to create the Docker Environment in a new version with the following directory structure:
+
+[source]
+----
+docker-compose.yml
+/init
+  /opennms        #<1>
+  /postgres       #<2>
+  /<...>
+----
+<1> migrated data for container OpenNMS
+<2> migrated data for container Postgres
+
+If the migration has been finished and all tests have been passed successfully, the created environment with the migrated data can be installed in the live system. It is very important, that the parent directory for the new Docker environment has an other name as the parent directory for the existing environment. For example:
+
+[source]
+----
+/opt
+  /onmsenv
+    /v1                     #<1>
+      docker-compose.yml
+      /init
+        /opennms
+        /<...>
+    /v2                     #<2>
+      docker-compose.yml
+      /init
+        /opennms
+        /<...>
+----
+<1> version 1 of the Docker Environment. Will also be used for the name prefix of named volumes.
+<2> version 2 of the Docker Environment. Will also be used for the name prefix of named volumes.
+
+TIP: The name of the parent directory (e.g. _v1_ or _v2_) will also be used as prefix for the names of named volumes. Because of the diffetent names, you can switch between the environments on any time during the following steps.
+
+The old Docker Environment can now be stopped on the live system with the following commands:
+
+[source,bash]
+----
+cd /opt/onmsenv/v1
+docker-compose down
+----
+
+Now, the neu version can be started:
+
+[source,bash]
+----
+cd /opt/onmsenv/v2
+docker-compose up -d
+----
+
+If all tests have beed passed successfully and the new environment is stable, the old names volumes can be deleted:
+
+[source,bash]
+----
+docker volume rm v1_opennms v1_postgres [...]
+----
+
+The update has been done.
+
+
+
+=== Minor Update
+
+A minor update only contains a change of a minor version of OpenNMS or further add-ons. Existing data does not need to be migrated. Thus, the preparation in a testing environment is not required and the update can be done in a simpler and faster way.
+
+WARNING: Also a minor update should be prepared carefully und the general process should be tested in a testing environment.
+
+The following steps needs to be done for a minor update:
+
+[options=interactive]
+* [ ] creation of a new version of the Docker Environment
+* [ ] setup of the environment on the live system
+* [ ] data export from the existing environment
+* [ ] replacement of the _init_ directory of the generated environment with the export
+* [ ] stop of the old environment
+* [ ] start of the new environment
+
+The particular steps correspond to the steps described in section <<Major Update>>
+
+
+
+
+== Import and Export of Data
+The import of data into the OpenNMS Docker Environment will only be done during the initializing on the container's first start. All files in the directory _data/init_ of the container will be included. Every container will only import his own data. For example, the OpenNMS container does only import the OpenNMS configuration files, while the OpenNMS database will be imported into the Postgres container. The structure in _/data/init_ depends on the given container and will be described in the next sections of this document. The environment created by container_generator has the following structure:
+
+[source]
+----
+docker-compose.yml
+/init
+  /opennms        #<1>
+  /postgres       #<2>
+  /<...>
+----
+<1> Will be mapped in container OpenNMS to /data/init
+<2> will be mapped in container Postgres to /data/init
+
+Data export of the Docker Environment will be done by executing the following command in the management container:
+
+[source,bash]
+----
+/opt/managerscripts/command_for_all.sh export
+----
+
+This will execute the script _/opt/containerscripts/export.sh_ in every container of the docker environment. The export.sh script exports the data for the particular container into the _/data/export/<container>/_ directory. In the generated Docker Environment, the directory _/data/export/_ mapped into all container as named volume.
+
+TIP: The structure of _/data/export_ matches with the structure of _/data/init_, which can be used to import data into a new environment. So, exported data can be reimported easily.
+
+The following sections describe the import of data for the containers.
+
+
+=== OpenNMS
+The following directories can be used to initialize the OpenNMS container:
+
+[source]
+----
+docker-compose.yml
+/init
+  /opennms
+    /etc
+    /rrd
+    /lib_add
+    /web_add
+----
+
+==== etc
+In _etc_, OpenNMS configuration files can be placed for an import. Please consider the following points, when importing configuration files:
+
+* differences between OpenNMS versions
+* in some config files, the full path of the configuration directory is hard coded(e.g.: /var/lib/opennms/rrd vs. /opt/opennms/share/rrd)
+* some configuration files in the Docker environment may not be overwritten, this is
+** java.conf
+
+==== rrd
+The directory _rrd_ contains RRD files to be imported. The following directory structre needs to be met:
+
+[source]
+----
+/rrd
+  /response
+  /snmp
+----
+
+==== lib_add
+Additional JAR files for /opt/opennms/lib can be placed in _lib_add_. Also, existing files in the OpenNMS Docker image can be overwritten.
+
+==== web_add
+In _web_add_, additional files for the OpenNMS WebUI (/opt/opennms/jetty_webapps) can be placed. Existing files will be overwritten.
+
+
+=== PostgreSQL
+The container PostgreSQL is the database server for the environment. The import of data can be done with SQL dumps. The following directory structure can be used:
+
+[source]
+----
+docker-compose.yml
+/init
+  /postgres
+    /sql
+----
+
+==== sql
+Database dumps (e.g. from an OpenNMS or AlarmForwarder system) can be placed in the _sql_ directory. Every dump must be created with specific options (_--create_ and replacement of specific characters) and be named with the file extension _*.sql_. Please see the following examples for the creation of an OpenNMS and AlarmForwarder dump:
+
+[source,bash]
+----
+pg_dump --create -U opennms > db_opennms.sql && sed -i "s/LC_COLLATE = '.*' LC_CTYPE = '.*'//g" db_opennms.sql
+pg_dump --create -U alarmforwarder > db_alarmforwarder.sql && sed -i "s/LC_COLLATE = '.*' LC_CTYPE = '.*'//g" db_alarmforwarder.sql
+----
+
+TIP: The schema of an imported OpenNMS database will be updated automatically to the version used in the Docker image.(the OpenNMS version must not be older than the version where the database dump was created).
+
+
+
+=== Nginx
+For initializing of Nginx, the following directory structure can be used:
+
+[source]
+----
+docker-compose.yml
+/init
+  /nginx
+    /etc
+    /www
+----
+
+==== etc
+Configuration files (e.g. nginx.conf or SSL certificates) can be placed in _etc_ for an initial import.
+
+==== www
+In _www_, files for a HTTP access can be placed.
+
+
+
+=== Management
+For the import of data into the management container, please use the following directory structure:
+
+[source]
+----
+docker-compose.yml
+/init
+  /management
+    /etc
+----
+
+==== etc
+The _etc_ directory can contain a configuration file for the automatic backup of the environment. The configuration file should have the name _backup.conf_.
+
+
+=== AlarmForwarder
+The AlarmForwarder container does not contain own data. All data were hold in the AlarmForwarder database, which will be imported into the Postgres container.
+
+
+=== Cassandra
+
+WARNING: Cassandra support within the Docker Environment is experimental at the moment and for testing purposes only.
+
+Existing data can be imported using the following structure:
+
+[source]
+----
+docker-compose.yml
+/init
+  /cassandra
+    /schema
+    /snapshot
+----
+
+==== schema
+This directory contains the schema definitions for the particular keyspaces of a cassandra database. These could be created with the following command:
+
+[source,bash]
+----
+CQL="DESC KEYSPACE ${KEYSPACE};"
+cqlsh -u ${CASSANDRA_USER} -p ${CASSANDRA_PASSWORD} -e \"${CQL}\" ${HOSTNAME}" > ${SCHEMAFILE}
+---- 
+
+==== snapshot
+This directory contains snapshots of cassandra tables. Please see an example script for the creation of snapshots:
+
+[source,bash]
+----
+/opt/cassandra/bin/nodetool snapshot -t export
+SNAPSHOT_PATHS=`find /opt/cassandra/data/data/ -name "export" -type d`
+for SNAPSHOT_PATH in ${SNAPSHOT_PATHS}
+do
+    SNAPSHOT_SUBDIR=${SNAPSHOT_PATH#/opt/cassandra/data/data}
+    TARGET_SUBDIR=${SNAPSHOT_SUBDIR%/snapshots/export}
+    if [[ $TARGET_SUBDIR != /system* ]] ;
+    then
+        TARGET_DIR=${DUMPDIR}/snapshot/${TARGET_SUBDIR}
+        mkdir -p ${TARGET_DIR}
+        cp ${SNAPSHOT_PATH}/* ${TARGET_DIR}
+    fi
+done
+/opt/cassandra/bin/nodetool clearsnapshot -t export
+----
+
+
+
+=== Grafana
+The following directories can be used to initialize the Grafana container:
+
+[source]
+----
+docker-compose.yml
+/init
+  /grafana
+    /conf
+    /data
+----
+
+==== conf
+The directory _conf_ contains the configuration files of Grafana (_<Grafana-Home>/conf_ directory)
+
+==== data
+The _data_ directory contains an existing data directory of Grafana (_<Grafana-Home>/data_)
+
+
+
+=== PRIS
+For the import of data in PRIS, please use the following directory structure:
+
+[source]
+----
+docker-compose.yml
+/init
+  /pris
+    /requisitions
+----
+
+==== requisitions
+The _requisitions_ directory contains the definitions for Provisioning Requisitions, which are placed in _<PRIS-Home>/requisitions_ in PRIS.
+
+=== yourDashboard
+Use the following structure for an import of configuration files in yourDashboard
+
+[source]
+----
+docker-compose.yml
+/init
+  /yourdashboard
+    /etc
+----
+
+==== etc
+Configuration files for _<yourDashboard-Home>/etc_ can be placed in _etc_. Theses files will be imported on the container's first start.
+

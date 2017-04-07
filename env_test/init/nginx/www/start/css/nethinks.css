@@ -1,0 +1,117 @@
+/*
+* CSS for new startpage
+* Michael.Batz@nethinks.com
+*/
+
+/**
+* default behavior
+*/
+h2
+{
+	color:			#FFFFFF;
+	font-size:		14pt;
+}
+
+p
+{
+	color:			#FFFFFF;
+}
+
+a
+{
+	color:			#FFFFFF;
+}
+
+ul
+{
+    border-bottom:  100px;
+}
+
+
+/**
+* content
+*/
+div.nethinks-contentbox
+{
+	background-color:	#DDDDDD;
+	border:			1pt solid;
+	border-color:		#CCCCCC;
+	border-radius:		10px;
+	margin-top:		50px;
+	padding:		30px;
+}
+
+div.nethinks-logo
+{
+	padding-bottom:		50px;
+}
+
+div.nethinks-green
+{
+	background-color:	#6FB31A;
+	border-color:		#6FB31A;
+	border-radius:		20px;
+	min-height:		    500px;
+	padding:		    20px;
+	margin-bottom:		20px;
+}
+
+div.nethinks-yellow
+{
+	background-color:	#F49919;
+	border-color:		#F49919;
+	border-radius:		20px;
+	min-height:		    500px;
+	padding:		    20px;
+	margin-bottom:		20px;
+}
+
+div.nethinks-red
+{
+	background-color:	#96214A;
+	border-color:		#96214A;
+	border-radius:		20px;
+	min-height:		    500px;
+	padding:		    20px;
+	margin-bottom:		20px;
+}
+
+div.nethinks-blue
+{
+	background-color:	#0E3C8A;
+	border-color:		#0E3C8A;
+	border-radius:		20px;
+	min-height:		    500px;
+	padding:		    20px;
+	margin-bottom:		20px;
+}
+
+/**
+* icons
+*/
+.nethinks-green .glyphicon
+{
+	color:			#9FE34A;
+	padding-right:		5px;
+
+}
+
+
+.nethinks-yellow .glyphicon
+{
+	color:			#F4C949;
+	padding-right:		5px;
+}
+
+.nethinks-red .glyphicon
+{
+	color:			#C6517A;
+	padding-right:		5px;
+}
+
+.nethinks-blue .glyphicon
+{
+	color:			#3E6CBA;
+	padding-right:		5px;
+}
+

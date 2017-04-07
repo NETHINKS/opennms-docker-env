@@ -1,0 +1,14 @@
+version: "2.1"
+
+services:
+    containergenerator:
+        image: nethinks/opennmsenv-containergenerator:1.0.0-1
+        build: ../images/containergenerator
+        ports:
+        - "2223:22"
+        environment:
+          SSH_USER: "admin"
+          SSH_PASSWORD: "secret1234"
+        volumes:
+        - ./output:/opt/opennms-docker-env/scripts/container_generator/output
+        - /var/run/docker.sock:/var/run/docker.sock
