@@ -24,7 +24,9 @@ RUN if [ ${build_customrepo} ]; \
             rpm -Uvh http://yum.opennms.org/repofiles/opennms-repo-stable-rhel7.noarch.rpm; \
             rpm --import http://yum.opennms.org/OPENNMS-GPG-KEY; \
     fi \
-    && yum -y install vim net-snmp-utils postgresql jrrd jrrd2 R \
+    && yum -y install https://centos7.iuscommunity.org/ius-release.rpm \
+    && yum -y install vim net-snmp-utils postgresql jrrd jrrd2 \
+                   python35u.x86_64 python35u-pip.noarch \
                    opennms-core \
                    opennms-webapp-jetty \
                    opennms-jmx-config-generator \
@@ -42,6 +44,11 @@ RUN if [ ${build_customrepo} ]; \
                    opennms-plugin-ticketer-otrs \
                    opennms-plugin-ticketer-rt \
                    opennms-plugin-ticketer-centric \
+    # install Python3.5 environment
+    && pip3.5 install requests==2.14.2 SQLAlchemy==1.1.9 psycopg2==2.7.1 ldap3==2.2.4 \
+       pyvmomi==6.5 dnspython3==1.15.0 \
+    && ln -s /usr/bin/python3.5 /usr/bin/python3 \
+    # create OpenNMS java.conf
     && /opt/opennms/bin/runjava -s \
     # create directories for import and export
     && mkdir -p /data/init \
