@@ -129,7 +129,7 @@ class OpenNMS(Container):
         }]
         
         # container config
-        self._container_config.set_image("nethinks/opennmsenv-opennms:18.0.4-1")
+        self._container_config.set_image("nethinks/opennmsenv-opennms:18.0.4-2")
         if self._app_config.get_value_boolean("setup", "build_images"):
             self._container_config.set_build_path("../../../images/opennms")
             self._container_config.add_buildarg("build_customrepo", "https://opennmsdeploy.nethinks.com/repo/horizon/18.0.4/")
@@ -254,7 +254,7 @@ class Cassandra(Container):
 
     def setup_container(self):
         # container config
-        self._container_config.set_image("nethinks/opennmsenv-cassandra:3.9-1")
+        self._container_config.set_image("nethinks/opennmsenv-cassandra:3.10-1")
         if self._app_config.get_value_boolean("setup", "build_images"):
             self._container_config.set_build_path("../../../images/cassandra")
         self._container_config.set_restart_policy("always")

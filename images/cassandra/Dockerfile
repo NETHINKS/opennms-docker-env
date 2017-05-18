@@ -17,11 +17,11 @@ RUN curl -fsSLO -H "Cookie: oraclelicense=accept-securebackup-cookie" http://dow
     && rm -f jdk-8u112-linux-x64.rpm \
     && yum -y install psmisc.x86_64 \
     # install Apache Cassandra
-    && curl -fsSLO http://www-eu.apache.org/dist/cassandra/3.9/apache-cassandra-3.9-bin.tar.gz \
-    && tar -xzvf apache-cassandra-3.9-bin.tar.gz -C /opt \
-    && mv /opt/apache-cassandra-3.9 /opt/cassandra \
+    && curl -fsSLO http://www-eu.apache.org/dist/cassandra/3.10/apache-cassandra-3.10-bin.tar.gz \
+    && tar -xzvf apache-cassandra-3.10-bin.tar.gz -C /opt \
+    && mv /opt/apache-cassandra-3.10 /opt/cassandra \
     && rm -Rf /opt/cassandra/javadoc \
-    && rm -f apache-cassandra-3.9-bin.tar.gz \
+    && rm -f apache-cassandra-3.10-bin.tar.gz \
     # create directories for data
     && mkdir -p /data/init \
     && mkdir -p /data/export \

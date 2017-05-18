@@ -70,11 +70,11 @@ RUN if [ ${build_customrepo} ]; \
     && mkdir /opt/opennms/jetty-webapps \
     && mkdir /opt/opennms/lib \
     # install Apache Cassandra to use the cqlsh client
-    && curl -fsSLO http://www-eu.apache.org/dist/cassandra/3.9/apache-cassandra-3.9-bin.tar.gz \
-    && tar -xzvf apache-cassandra-3.9-bin.tar.gz -C /opt \
-    && mv /opt/apache-cassandra-3.9 /opt/cassandra \
+    && curl -fsSLO http://www-eu.apache.org/dist/cassandra/3.10/apache-cassandra-3.10-bin.tar.gz \
+    && tar -xzvf apache-cassandra-3.10-bin.tar.gz -C /opt \
+    && mv /opt/apache-cassandra-3.10 /opt/cassandra \
     && rm -Rf /opt/cassandra/javadoc \
-    && rm -f apache-cassandra-3.9-bin.tar.gz \
+    && rm -f apache-cassandra-3.10-bin.tar.gz \
     # cleanup for a smaller Docker image
     && yum -y clean all
  

@@ -44,7 +44,7 @@ services:
           - postgres:/data/container
           - ./init/postgres:/data/init
     cassandra:
-        image: nethinks/opennmsenv-cassandra:3.9-1
+        image: nethinks/opennmsenv-cassandra:3.10-1
         build: ../images/cassandra
         environment:
           CASSANDRA_USER: "cassandra"
@@ -98,7 +98,7 @@ services:
           - pris:/data/container
           - ./init/pris:/data/init
     opennms:
-        image: nethinks/opennmsenv-opennms:18.0.4-1
+        image: nethinks/opennmsenv-opennms:18.0.4-2
         build: 
           context: ../images/opennms
           args:
