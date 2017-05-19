@@ -12,13 +12,15 @@ networks:
 
 services:
     management:
-        image: nethinks/opennmsenv-management:1.0.0-1
+        image: nethinks/opennmsenv-management:1.1.0-1
         build: ../images/management
         ports:
         - "2222:22"
         environment:
           SSH_USER: "admin"
           SSH_PASSWORD: "secret1234"
+          BACKUP_ENABLED: "TRUE"
+          BACKUP_URL: "smb://user:pass@1.2.3.4/backup/test"
         volumes:
         - export:/data/export
         - management:/data/container

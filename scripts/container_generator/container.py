@@ -607,10 +607,7 @@ class Management(Container):
     default_parameters = OrderedDict([
         ("ssh_password", "admin"),
         ("backup_enabled", "False"),
-        ("backup_smbshare", "//1.2.3.4/backup"),
-        ("backup_smbfolder", "/dockerenv"),
-        ("backup_smbuser", "user"),
-        ("backup_smbpassword", "password")
+        ("backup_url", "smb://username:password@1.2.3.4/backup/test"),
     ])
 
     def __init__(self, container_name, output_basedir, app_config):
@@ -618,14 +615,11 @@ class Management(Container):
         Container.__init__(self, container_name, output_basedir, app_config)
         self._container_parameters["ssh_password"] = self._app_config.get_value("authentication", "admin_password", "")
         self._container_parameters["backup_enabled"] = self._app_config.get_value("backup", "enabled", "False")
-        self._container_parameters["backup_smbshare"] = self._app_config.get_value("backup", "smbshare", "")
-        self._container_parameters["backup_smbfolder"] = self._app_config.get_value("backup", "smbfolder", "")
-        self._container_parameters["backup_smbuser"] = self._app_config.get_value("backup", "smbuser", "")
-        self._container_parameters["backup_smbpassword"] = self._app_config.get_value("backup", "smbpassword", "")
+        self._container_parameters["backup_url"] = self._app_config.get_value("backup", "url", "")
 
     def setup_container(self):
         # container config
-        self._container_config.set_image("nethinks/opennmsenv-management:1.0.0-1")
+        self._container_config.set_image("nethinks/opennmsenv-management:1.1.0-1")
         if self._app_config.get_value_boolean("setup", "build_images"):
             self._container_config.set_build_path("../../../images/management")
         self._container_config.set_restart_policy("always")
@@ -655,17 +649,7 @@ class Management(Container):
 
         # create backup config, if required
         if self._container_parameters["backup_enabled"] != "False":
-            template_engine = TemplateEngine()
-            template_context = {
-                "smbshare": self._container_parameters["backup_smbshare"],
-                "smbfolder": self._container_parameters["backup_smbfolder"],
-                "smbuser": self._container_parameters["backup_smbuser"],
-                "smbpassword": self._container_parameters["backup_smbpassword"]
-            }
-            config_file_dir = self._container_outputdir + "/etc"
-            config_file_name = config_file_dir + "/backup.conf"
-            os.makedirs(config_file_dir, exist_ok=True)
-            template_engine.render_template_to_file("templates/container/management/backup.conf.tpl",
-                                                config_file_name, template_context)
-
-
+            self._container_config.add_environment("BACKUP_ENABLED", "TRUE")
+            self._container_config.add_environment("BACKUP_URL",
+                                                   self._container_parameters["backup_url"])
+ 

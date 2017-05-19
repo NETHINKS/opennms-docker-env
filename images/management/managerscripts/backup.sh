@@ -9,23 +9,21 @@
 #                                                                        #
 ##########################################################################
 
+# init environment variables
+if [ -z ${BACKUP_ENABLED+x} ]; then BACKUP_ENABLED="FALSE"; fi
+if [ -z ${BACKUP_URL+x} ]; then BACKUP_URL="smb://user:pass@1.2.3.4/backup/test"; fi
+
 # configuration variables
-CONF_FILE=/data/container/etc/backup.conf
 EXPORT_DIR=/data/export
 BACKUP_TEMP=/data/container/tmp
-OUT_METHOD=SMB
-OUT_SMB_SHARE=//1.2.3.4/backup
-OUT_SMB_FOLDER=/test
-OUT_SMB_USER=username
-OUT_SMB_PASSWORD=password
 
-# load configuration
-if [ -f "${CONF_FILE}" ]; then
-        . "${CONF_FILE}"
-else
-    # if no configuration file is present, exit
+# exit, if backup is disabled
+if [ "${BACKUP_ENABLED}" != "TRUE" ]; then
     exit
 fi
+
+# check backup protocol
+URL_PROTOCOL=$(echo $BACKUP_URL | sed -e 's#^\(.*\)://.*$#\1#g')
 
 # create export of all containers
 /opt/managerscripts/command_for_all.sh export
@@ -36,12 +34,34 @@ FILENAME_DATE=`date +%A`
 FILENAME=${FILENAME_BASE}${FILENAME_DATE}.tar
 tar -cvf ${BACKUP_TEMP}/${FILENAME} ${EXPORT_DIR}
 
+
 # put backup file to SMB server, if configured
-if [ ${OUT_METHOD} = "SMB" ]; then
+if [ ${URL_PROTOCOL} = "smb" ]; then
+URL_USER=$(echo $BACKUP_URL | sed -e 's#^.*://\(.*\):\(.*\)@\(.*\)$#\1#g')
+URL_PASS=$(echo $BACKUP_URL | sed -e 's#^.*://\(.*\):\(.*\)@\(.*\)$#\2#g')
+URL_SHARE=$(echo $BACKUP_URL | sed -e 's#^.*://\(.*\):\(.*\)@\([^/]\+/[^/]\+\)/\(.*\)$#\3#g')
+URL_DIR=$(echo $BACKUP_URL | sed -e 's#^.*://\(.*\):\(.*\)@\([^/]\+/[^/]\+\)/\(.*\)$#\4#g')
 cd ${BACKUP_TEMP}
-smbclient ${OUT_SMB_SHARE} -U ${OUT_SMB_USER} ${OUT_SMB_PASSWORD} <<EOC
-cd ${OUT_SMB_FOLDER}
+smbclient //${URL_SHARE} -U ${URL_USER} ${URL_PASS} <<EOC
+cd ${URL_DIR}
 put ${FILENAME}
+EOC
+fi
+
+# put backup file to FTP server, if configured
+if [ ${URL_PROTOCOL} = "ftp" ]; then
+URL_USER=$(echo $BACKUP_URL | sed -e 's#^.*://\(.*\):\(.*\)@\(.*\)$#\1#g')
+URL_PASS=$(echo $BACKUP_URL | sed -e 's#^.*://\(.*\):\(.*\)@\(.*\)$#\2#g')
+URL_SERVER=$(echo $BACKUP_URL | sed -e 's#^.*://\(.*\):\(.*\)@\([^/]\+\)/\(.*\)$#\3#g')
+URL_DIR=$(echo $BACKUP_URL | sed -e 's#^.*://\(.*\):\(.*\)@\([^/]\+\)/\(.*\)$#\4#g')
+
+cd ${BACKUP_TEMP}
+ftp -n ${URL_SERVER} <<EOC
+quote USER ${URL_USER}
+quote PASS ${URL_PASS}
+cd ${URL_DIR}
+put ${FILENAME}
+quit
 EOC
 fi
 

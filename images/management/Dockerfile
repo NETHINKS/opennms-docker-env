@@ -14,7 +14,7 @@ ENV LANG ${build_locale}.utf8
 # install OpenSSH server, cron, software, scripts and docker client
 RUN yum install -y openssh-server.x86_64 less.x86_64 net-snmp-utils.x86_64 bind-utils.x86_64 \
     telnet.x86_64 tcpdump.x86_64 openssl.x86_64 traceroute.x86_64 samba-client.x86_64 \
-    openssh-clients.x86_64 cronie.x86_64 \
+    openssh-clients.x86_64 ftp.x86_64 vim-enhanced.x86_64 cronie.x86_64 \
     && ssh-keygen -t rsa -f /etc/ssh/ssh_host_rsa_key -N '' \
     && curl -fsSLO https://get.docker.com/builds/Linux/x86_64/docker-17.03.1-ce.tgz \
     && tar --strip-components=1 -xvzf docker-17.03.1-ce.tgz -C /usr/local/bin \
