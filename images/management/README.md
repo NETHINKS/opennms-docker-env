@@ -6,11 +6,13 @@ It provides management access to the environment via SSH login. You can login wi
 
 
 ## Environment Variables
-The following environment variables can be used:
+The following environment variables can be used. Settings done in variables starting with 'CONF\_' will be set on every startup of the container. Settings done in variables startung with 'INIT\_' will only be applied on the container's first start.
 
 | Variable     | Description |
 |--------------|-------------|
-| SSH\_PASSWORD | password for SSH access. default *admin* |
+| CONF\_SSH\_PASSWORD | password for SSH access. default *admin* |
+| CONF\_BACKUP\_ENABLED | *TRUE*, if the backup cronjob should be enabled. default *FALSE* |
+| CONF\_BACKUP\_URL | URL for backups. default *smb://user:pass@1.2.3.4/backup/test* |
 
 
 ## Interesting Ports

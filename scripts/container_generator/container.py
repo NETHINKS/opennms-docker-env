@@ -624,7 +624,7 @@ class Management(Container):
             self._container_config.set_build_path("../../../images/management")
         self._container_config.set_restart_policy("always")
         self._container_config.add_port("2222:22")
-        self._container_config.add_environment("SSH_PASSWORD",
+        self._container_config.add_environment("CONF_SSH_PASSWORD",
                                                self._container_parameters["ssh_password"])
         self._container_namedvolumes.append("export")
         self._container_namedvolumes.append("management")
@@ -649,7 +649,7 @@ class Management(Container):
 
         # create backup config, if required
         if self._container_parameters["backup_enabled"] != "False":
-            self._container_config.add_environment("BACKUP_ENABLED", "TRUE")
-            self._container_config.add_environment("BACKUP_URL",
+            self._container_config.add_environment("CONF_BACKUP_ENABLED", "TRUE")
+            self._container_config.add_environment("CONF_BACKUP_URL",
                                                    self._container_parameters["backup_url"])
  

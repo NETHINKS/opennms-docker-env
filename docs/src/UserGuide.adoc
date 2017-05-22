@@ -174,18 +174,18 @@ A manual backup of the Environment can be done by executing the following comman
 
 When the backup has finished, the exported data are located in _/data/export_ (in management container or on the named volume) and can be copied to an external storage medium.
 
-
-A backup to a SMB fileserver can also be done automatically using a cronjob. Simply put the following configuration in _/data/container/etc/backup.conf_:
+A daily backup to a SMB fileserver or FTP server can also be done automatically using a cronjob. Simply use the environment variables of the management container:
 
 [source,bash]
 ----
-OUT_SMB_SHARE=//10.1.2.2/backup
-OUT_SMB_FOLDER=/dockerenv
-OUT_SMB_USER=backup
-OUT_SMB_PASSWORD=secret1234
+CONF_BACKUP_ENABLED = TRUE
+CONF_BACKUP_URL = smb://user:password@server/share/directory
+
+#or in case of a FTP server:
+CONF_BACKUP_URL = ftp://user:password@server/directory
 ----
 
-If the file is present, a daily cronjob will execute the backup at 09:00 p.m. to the configured SMB server.
+A daily cronjob will execute the backup at 09:00 p.m. to the configured target.
 
 TIP: The container_generator script will also ask you for the parameters above and can create the required configuration.
 

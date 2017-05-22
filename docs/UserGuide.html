@@ -798,18 +798,19 @@ docker start &lt;container-name&gt;</code></pre>
 <p>When the backup has finished, the exported data are located in <em>/data/export</em> (in management container or on the named volume) and can be copied to an external storage medium.</p>
 </div>
 <div class="paragraph">
-<p>A backup to a SMB fileserver can also be done automatically using a cronjob. Simply put the following configuration in <em>/data/container/etc/backup.conf</em>:</p>
+<p>A daily backup to a SMB fileserver or FTP server can also be done automatically using a cronjob. Simply use the environment variables of the management container:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="bash"><span class="tok-nv">OUT_SMB_SHARE</span><span class="tok-o">=</span>//10.1.2.2/backup
-<span class="tok-nv">OUT_SMB_FOLDER</span><span class="tok-o">=</span>/dockerenv
-<span class="tok-nv">OUT_SMB_USER</span><span class="tok-o">=</span>backup
-<span class="tok-nv">OUT_SMB_PASSWORD</span><span class="tok-o">=</span>secret1234</code></pre>
+<pre class="pygments highlight"><code data-lang="bash"><span class="tok-nv">CONF_BACKUP_ENABLED</span> <span class="tok-o">=</span> TRUE
+<span class="tok-nv">CONF_BACKUP_URL</span> <span class="tok-o">=</span> smb://user:password@server/share/directory
+
+<span class="tok-c1">#or in case of a FTP server:</span>
+<span class="tok-nv">CONF_BACKUP_URL</span> <span class="tok-o">=</span> ftp://user:password@server/directory</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>If the file is present, a daily cronjob will execute the backup at 09:00 p.m. to the configured SMB server.</p>
+<p>A daily cronjob will execute the backup at 09:00 p.m. to the configured target.</p>
 </div>
 <div class="admonitionblock tip">
 <table>
@@ -1415,7 +1416,7 @@ cqlsh -u <span class="tok-si">${</span><span class="tok-nv">CASSANDRA_USER</span
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-04-06 14:23:54 CEST
+Last updated 2017-05-22 16:19:43 CEST
 </div>
 </div>
 </body>

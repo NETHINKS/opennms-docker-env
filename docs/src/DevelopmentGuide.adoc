@@ -32,6 +32,11 @@ Each Docker Image for the environment is built on the latest Centos release and 
 
 All scripts must be present in each container. If a script is not needed, it should be empty.
 
+=== Environment variables
+
+There are two types of environment variables, that should be used to define settings. Variables starting with 'CONF_' will be applied on every startup of the container. Variables starting with 'INIT_' will be applied only on the container's first start.
+
+
 === Data Handling
 
 All data, that is managed by the container, should be stored in _/data/container_. Import of data should only be done on the container's first start from _/data/init_ within the container. Export of data is done by executing the export.sh script to _/data/export_.
