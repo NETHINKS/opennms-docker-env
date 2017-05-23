@@ -112,10 +112,17 @@ services:
           - cassandra
         privileged: true
         environment:
-          DB_SERVER: "postgres"
-          DB_USER: "postgres"
-          DB_PASSWORD: "secret1234"
-          ENABLE_NEWTS: "true"
+          INIT_DB_SERVER: "postgres"
+          INIT_DB_USER: "postgres"
+          INIT_DB_PASSWORD: "secret1234"
+          INIT_CASSANDRA_ENABLE: "true"
+          INIT_CASSANDRA_SERVER: "cassandra"
+          INIT_CASSANDRA_USER: "cassandra"
+          INIT_CASSANDRA_PASSWORD: "secret1234"
+          INIT_ADMIN_USER: "admin"
+          INIT_ADMIN_PASSWORD: "secret1234"
+          INIT_API_USER: "api"
+          INIT_ADMIN_PASSWORD: "secret1234"
         volumes:
           - export:/data/export
           - opennms:/data/container

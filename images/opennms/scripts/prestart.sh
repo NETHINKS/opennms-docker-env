@@ -10,18 +10,21 @@
 ##########################################################################
 
 # init environment variables
-if [ -z ${DB_SERVER+x} ]; then DB_SERVER=dbserver; fi
-if [ -z ${DB_USER+x} ]; then DB_USER=postgres; fi
-if [ -z ${DB_PASSWORD+x} ]; then DB_PASSWORD=secret; fi
+if [ -z ${INIT_DB_SERVER+x} ]; then DB_SERVER=dbserver; fi
+if [ -z ${INIT_DB_USER+x} ]; then DB_USER=postgres; fi
+if [ -z ${INIT_DB_PASSWORD+x} ]; then DB_PASSWORD=secret; fi
+if [ -z ${INIT_CASSANDRA_ENABLE+x} ]; then INIT_CASSANDRA_ENABLE=false; fi
+if [ -z ${INIT_CASSANDRA_SERVER+x} ]; then INIT_CASSANDRA_SERVER=cassandra; fi
+if [ -z ${INIT_CASSANDRA_USER+x} ]; then INIT_CASSANDRA_USER=cassandra; fi
+if [ -z ${INIT_CASSANDRA_PASSWORD+x} ]; then INIT_CASSANDRA_PASSWORD=secret; fi
+if [ -z ${INIT_ADMIN_USER+x} ]; then INIT_ADMIN_USER=admin; fi
+if [ -z ${INIT_ADMIN_PASSWORD+x} ]; then INIT_ADMIN_PASSWORD=admin; fi
+if [ -z ${INIT_API_USER+x} ]; then INIT_API_USER=api; fi
+if [ -z ${INIT_API_PASSWORD+x} ]; then INIT_API_PASSWORD=api; fi
 
 # remove old directories and symlinks
 rm -Rf /opt/opennms/lib/*
 rm -Rf /opt/opennms/jetty-webapps/*
-
-# update database configuration on startup
-sed -i 's/user-name=".*"/user-name="'"$DB_USER"'"/g' /data/container/etc/opennms-datasources.xml
-sed -i 's/password=".*"/password="'"$DB_PASSWORD"'"/g' /data/container/etc/opennms-datasources.xml
-sed -i 's/localhost/'"$DB_SERVER"'/g' /data/container/etc/opennms-datasources.xml
 
 # init OpenNMS lib directory
 cp -R /data/ref/lib/* /opt/opennms/lib
@@ -42,7 +45,7 @@ fi
 # waiting for Postgres startup
 while true
 do
-    PGPASSWORD=$DB_PASSWORD psql -h $DB_SERVER -U $DB_USER -c "\l"
+    PGPASSWORD=$INIT_DB_PASSWORD psql -h $INIT_DB_SERVER -U $INIT_DB_USER -c "\l"
     if [ $? -eq 0 ]
     then
         echo "Connection to PostgreSQL server successful"
@@ -53,10 +56,10 @@ do
 done
 
 # waiting for Cassandra startup if newts is enabled
-if [[ ${ENABLE_NEWTS} == "true" ]]; then
+if [[ ${INIT_CASSANDRA_ENABLE} == "true" ]]; then
     while true
     do
-        /opt/cassandra/bin/cqlsh -u cassandra -p $DB_PASSWORD cassandra -e "DESC KEYSPACES"
+        /opt/cassandra/bin/cqlsh -u $INIT_CASSANDRA_USER -p $INIT_CASSANDRA_PASSWORD $INIT_CASSANDRA_SERVER -e "DESC KEYSPACES"
         if [ $? -eq 0 ]
         then
             echo "Connection to Cassandra server successful"

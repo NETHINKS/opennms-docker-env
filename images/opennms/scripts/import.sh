@@ -9,11 +9,6 @@
 #                                                                        #
 ##########################################################################
 
-# init environment variables
-if [ -z ${DB_SERVER+x} ]; then DB_SERVER=dbserver; fi
-if [ -z ${DB_USER+x} ]; then DB_USER=postgres; fi
-if [ -z ${DB_PASSWORD+x} ]; then DB_PASSWORD=secret; fi
-
 # init configuration: copy files from etc_init if exist
 if [ -d /data/init/etc ] ; then
     FILECOUNT_ETC_INIT=$(ls -1 /data/init/etc | wc -l)

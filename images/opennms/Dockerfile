@@ -26,7 +26,7 @@ RUN if [ ${build_customrepo} ]; \
     fi \
     && yum -y install https://centos7.iuscommunity.org/ius-release.rpm \
     && yum -y install vim net-snmp-utils postgresql jrrd jrrd2 \
-                   python35u.x86_64 python35u-pip.noarch \
+                   python35u.x86_64 python35u-pip.noarch python35u-devel.x86_64 \
                    opennms-core \
                    opennms-webapp-jetty \
                    opennms-jmx-config-generator \
@@ -44,9 +44,10 @@ RUN if [ ${build_customrepo} ]; \
                    opennms-plugin-ticketer-otrs \
                    opennms-plugin-ticketer-rt \
                    opennms-plugin-ticketer-centric \
+                   gcc.x86_64 openssl-devel.x86_64 \
     # install Python3.5 environment
     && pip3.5 install requests==2.14.2 SQLAlchemy==1.1.9 psycopg2==2.7.1 ldap3==2.2.4 \
-       pyvmomi==6.5 dnspython3==1.15.0 \
+       pyvmomi==6.5 dnspython3==1.15.0 Jinja2==2.9.6 \
     && ln -s /usr/bin/python3.5 /usr/bin/python3 \
     # create OpenNMS java.conf
     && /opt/opennms/bin/runjava -s \
