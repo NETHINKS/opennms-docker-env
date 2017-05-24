@@ -6,14 +6,22 @@ It provides [OpenNMS](https://opennms.org "OpenNMS Website") itself, an open sou
 
 
 ## Environment Variables
-The following environment variables can be used:
+The following environment variables can be used. Settings done in variables starting with 'CONF\_' will be set on every startup of the container. Settings done in variables startung with 'INIT\_' will only be applied on the container's first start.
+
 
 | Variable     | Description |
 |--------------|-------------|
-| DB\_SERVER    | initial setting for database server. default: *dbserver* |
-| DB\_USER      | initial setting for database user name. default: *postgres* |
-| DB\_PASSWORD  | initial setting for database password. default: *secret* |
-| ENABLE\_NEWTS | trigger the initialization of the newts database. default: *false* |
+| INIT\_DB\_SERVER    | initial setting for database server. default: *dbserver* |
+| INIT\_DB\_USER      | initial setting for database user name. default: *postgres* |
+| INIT\_DB\_PASSWORD  | initial setting for database password. default: *secret* |
+| INIT\_CASSANDRA\_ENABLE | enable the usage of cassandra(*true* or *false*). default: *false* |
+| INIT\_CASSANDRA\_SERVER | the cassandra server to use. default: *cassandra* |
+| INIT\_CASSANDRA\_USER | username for connecting to cassandra. default: *cassandra* |
+| INIT\_CASSANDRA\_PASSWORD | password for connecting to cassandra. default: *secret* |
+| INIT\_ADMIN\_USER | username for the OpenNMS admin user. default: *admin* |
+| INIT\_ADMIN\_PASSWORD | password for the OpenNMS admin user. default: *admin* |
+| INIT\_API\_USER | username for the OpenNMS api access user. default: *api* |
+| INIT\_API\_PASSWORD | password for the OpenNMS api access user. default: *api* |
 
 
 ## Exporting Ports

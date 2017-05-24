@@ -135,12 +135,18 @@ class OpenNMS(Container):
             self._container_config.add_buildarg("build_customrepo", "https://opennmsdeploy.nethinks.com/repo/horizon/18.0.4/")
         self._container_config.set_privileged(True)
         self._container_config.set_restart_policy("always")
-        self._container_config.add_environment("DB_SERVER",
+        self._container_config.add_environment("INIT_DB_SERVER",
                                                self._container_parameters["database_server"])
-        self._container_config.add_environment("DB_USER",
+        self._container_config.add_environment("INIT_DB_USER",
                                                self._container_parameters["database_user"])
-        self._container_config.add_environment("DB_PASSWORD",
+        self._container_config.add_environment("INIT_DB_PASSWORD",
                                                self._container_parameters["database_password"])
+        self._container_config.add_environment("INIT_ADMIN_USER", "admin")
+        self._container_config.add_environment("INIT_ADMIN_PASSWORD",
+                                                self._container_parameters["user_admin_password"])
+        self._container_config.add_environment("INIT_API_USER", "admin")
+        self._container_config.add_environment("INIT_API_PASSWORD",
+                                                self._container_parameters["user_api_password"])
         self._container_namedvolumes.append("opennms")
         self._container_namedvolumes.append("rrd")
         self._container_config.add_volume("opennms:/data/container")
@@ -152,56 +158,16 @@ class OpenNMS(Container):
         self._container_config.add_port("5817:5817")
         self._container_config.add_dependency("postgres")
 
-        # create init/etc/opennms.properties.d/web-base.properties
-        template_engine = TemplateEngine()
-        template_context = {}
-        template_context["url"] = "https://%x%c/"
-        config_file_dir = self._container_outputdir + "/etc/opennms.properties.d"
-        config_file_name = config_file_dir + "/web-base.properties"
-        os.makedirs(config_file_dir, exist_ok=True)
-        template_engine.render_template_to_file("templates/container/opennms/web-base.properties.tpl",
-                                                config_file_name, template_context)
-
-        # create init/etc/users.xml
-        template_engine = TemplateEngine()
-        userAdminHash = hashlib.md5(self._container_parameters["user_admin_password"].\
-                        encode("utf-8")).hexdigest().upper()
-        userApiHash = hashlib.md5(self._container_parameters["user_api_password"].\
-                      encode("utf-8")).hexdigest().upper()
-        template_context = {}
-        template_context["users"] = {}
-        template_context["users"]["admin"] = {
-            "name" : "Administrator",
-            "description" : "Default administrator, do not delete",
-            "password" : userAdminHash
-        }
-        template_context["users"]["api"] = {
-            "name" : "API User",
-            "description" : "user for API access",
-            "password" : userApiHash
-        }
-        config_file_dir = self._container_outputdir + "/etc"
-        config_file_name = config_file_dir + "/users.xml"
-        os.makedirs(config_file_dir, exist_ok=True)
-        template_engine.render_template_to_file("templates/container/opennms/users.xml.tpl",
-                                                config_file_name, template_context)
-
-        # check newts option and setup newts
+        # check cassandra option and parameters
         if self._app_config.get_value_boolean("container", "cassandra"):
-            self._container_config.add_environment("ENABLE_NEWTS", "true")
-            # create init/etc/opennms.properties.d/cassandra.properties
+            self._container_config.add_environment("INIT_CASSANDRA_ENABLE", "true")
+            self._container_config.add_environment("INIT_CASSANDRA_SERVER",
+                                                   self._container_parameters["cassandra_server"])
+            self._container_config.add_environment("INIT_CASSANDRA_USER",
+                                                   self._container_parameters["cassandra_user"])
+            self._container_config.add_environment("INIT_CASSANDRA_PASSWORD",
+                                                   self._container_parameters["cassandra_password"])
             self._container_config.add_dependency("cassandra")
-            template_engine = TemplateEngine()
-            template_context = {
-                "server": self._container_parameters["cassandra_server"],
-                "user": self._container_parameters["cassandra_user"],
-                "password": self._container_parameters["cassandra_password"]
-            }
-            config_file_dir = self._container_outputdir + "/etc/opennms.properties.d"
-            config_file_name = config_file_dir + "/cassandra.properties"
-            os.makedirs(config_file_dir, exist_ok=True)
-            template_engine.render_template_to_file("templates/container/opennms/cassandra.properties.tpl",
-                                                    config_file_name, template_context)
 
 
 class PostgreSQL(Container):
