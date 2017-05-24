@@ -485,27 +485,19 @@ class YourDashboard(Container):
         }]
 
         # container config
-        self._container_config.set_image("nethinks/opennmsenv-yourdashboard:0.3-1")
+        self._container_config.set_image("nethinks/opennmsenv-yourdashboard:0.3-2")
         if self._app_config.get_value_boolean("setup", "build_images"):
             self._container_config.set_build_path("../../../images/yourdashboard")
         self._container_config.set_restart_policy("always")
+        self._container_config.add_environment("INIT_OPENNMS_SERVER", "http://opennms:8980/opennms")
+        self._container_config.add_environment("INIT_OPENNMS_USER",
+                                               self._container_parameters["opennms_username"])
+        self._container_config.add_environment("INIT_OPENNMS_PASSWORD",
+                                               self._container_parameters["opennms_password"])
         self._container_namedvolumes.append("yourdashboard")
         self._container_config.add_volume("yourdashboard:/data/container")
         self._container_config.add_volume("export:/data/export")
         self._container_config.add_volume("./init/yourdashboard:/data/init")
-
-        # create dashboard-configuration.xml for yourDashboard
-        template_engine = TemplateEngine()
-        template_context = {
-            "url": self._container_parameters["opennms_url"],
-            "user": self._container_parameters["opennms_username"],
-            "password": self._container_parameters["opennms_password"]
-        }
-        config_file_dir = self._container_outputdir + "/etc"
-        config_file_name = config_file_dir + "/dashboard-configuration.xml"
-        os.makedirs(config_file_dir, exist_ok=True)
-        template_engine.render_template_to_file("templates/container/yourdashboard/dashboard-configuration.xml.tpl",
-                                                config_file_name, template_context)
 
 
 class Pris(Container):

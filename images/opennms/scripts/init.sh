@@ -32,7 +32,7 @@ if [ -z ${INIT_API_PASSWORD+x} ]; then INIT_API_PASSWORD=api; fi
     ${INIT_API_USER}:${INIT_API_PASSWORD} \
     > /data/container/etc/users.xml
 
-/opt/containerscripts/opennms/create_conf_webbase.py \ 
+/opt/containerscripts/opennms/create_conf_webbase.py \
     > /data/container/etc/opennms.properties.d/web-base.properties
 
 if [[ ${INIT_CASSANDRA_ENABLE} == "true" ]]; then

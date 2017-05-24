@@ -88,7 +88,7 @@ RUN if [ ${build_customrepo} ]; \
  
 
 # copy start script
-COPY scripts/* /opt/containerscripts/
+COPY scripts/ /opt/containerscripts/
 
 # run.sh
 CMD ["/opt/containerscripts/run.sh"]

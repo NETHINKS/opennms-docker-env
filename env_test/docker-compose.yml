@@ -85,8 +85,12 @@ services:
           - grafana:/data/container
           - ./init/grafana:/data/init
     yourdashboard:
-        image: nethinks/opennmsenv-yourdashboard:0.3-1
+        image: nethinks/opennmsenv-yourdashboard:0.3-2
         build: ../images/yourdashboard
+        environment:
+          INIT_OPENNMS_URL: "http://opennms:8980/opennms"
+          INIT_OPENNMS_USER: "api"
+          INIT_OPENNMS_PASSWORD: "secret1234"
         volumes:
           - export:/data/export
           - yourdashboard:/data/container
@@ -122,7 +126,7 @@ services:
           INIT_ADMIN_USER: "admin"
           INIT_ADMIN_PASSWORD: "secret1234"
           INIT_API_USER: "api"
-          INIT_ADMIN_PASSWORD: "secret1234"
+          INIT_API_PASSWORD: "secret1234"
         volumes:
           - export:/data/export
           - opennms:/data/container

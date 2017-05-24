@@ -11,18 +11,18 @@
 		<row>
 			<dashlet class="DashletOpenNMSOutages" refresh="30000">
 				<parameter key="title" value="Outages" />
-				<parameter key="restUrl" value="http://opennms:8980/opennms/rest" />
-				<parameter key="restUser" value="api" />
-				<parameter key="restPassword" value="secret1234" />
+				<parameter key="restUrl" value="{{ url }}/rest" />
+				<parameter key="restUser" value="{{ user }}" />
+				<parameter key="restPassword" value="{{ password }}" />
 				<parameter key="linkUrlBase" value="/opennms" />
 				<parameter key="maxEntries" value="10" />
 				<parameter key="createAlarms" value="false" />
 			</dashlet>
 			<dashlet class="DashletOpenNMSAlarms" refresh="30000">
 				<parameter key="title" value="Threshold Alarms" />
-				<parameter key="restUrl" value="http://opennms:8980/opennms/rest" />
-				<parameter key="restUser" value="api" />
-				<parameter key="restPassword" value="secret1234" />
+				<parameter key="restUrl" value="{{ url }}/rest" />
+				<parameter key="restUser" value="{{ user }}" />
+				<parameter key="restPassword" value="{{ password }}" />
 				<parameter key="linkUrlBase" value="/opennms" />
 				<parameter key="ueiFilter" value="uei.opennms.org/threshold" />
 				<parameter key="maxEntries" value="10" />
