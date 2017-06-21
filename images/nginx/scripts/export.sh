@@ -15,7 +15,4 @@ rm -Rf ${DUMPDIR}/*
 mkdir -p ${DUMPDIR}
 
 # export configuration
-cp -R /data/container/etc ${DUMPDIR}/.
-
-# export www data
-cp -R /data/container/www ${DUMPDIR}/.
+cp -R /data/container/ssl/* ${DUMPDIR}/.

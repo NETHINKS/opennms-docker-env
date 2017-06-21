@@ -24,48 +24,45 @@
 			<div class="row">
 				<div class="col-md-6 col-sm-6">
 					<div class="nethinks-blue">
-	                    <h2><span class="glyphicon glyphicon-wrench"></span>Installierte Software</h2>
+	                    <h2><span class="glyphicon glyphicon-wrench"></span>Software</h2>
 						<ul class="nav nav-pills nav-stacked">
-                            
+                            {% for location in locations %}
 							<li role="presentation">
-								<a href="/opennms">
-								    OpenNMS
+								<a href="{{ location.location }}">
+								    {{ location.name }}
 								</a>
 							</li>
-    					    <li role="presentation">
-								<a href="/alarmforwarder/">
-								    AlarmForwarder
-								</a>
-							</li>
-    					    <li role="presentation">
-								<a href="/grafana/">
-								    Grafana
-								</a>
-							</li>
-    					    <li role="presentation">
-								<a href="/yourdashboard">
-								    yourDashboard
-								</a>
-							</li>
+                            {% endfor %}
                         </ul>
                     </div>
                 </div>
 				<div class="col-md-6 col-sm-6">
 					<div class="nethinks-green">
-						<h2><span class="glyphicon glyphicon-earphone"></span>Bereitstellung und Support</h2>
+						<h2><span class="glyphicon glyphicon-earphone"></span>
+                            {% if support %}
+                                Support
+                            {% else %}
+                                Info
+                            {% endif %}
+                        </h2>
                         <p>
+                            {% if not support %}
+                                OpenNMS Docker Environment was created by <br /><br />
+                            {% endif %}
+
                             NETHINKS GmbH<br />
                             Bahnhofstra&szlig;e 16<br />
                             36037 Fulda<br />
                             <a href="http://www.nethinks.com/opennms">www.nethinks.com</a><br /><br />
 
-                            Support nach Aufwand ohne SLA<br />
-                            Start: 01.12.2016<br />
-                            Ende: offen<br/>
-                            CMDB: 0<br /><br />
-                            Supportf&auml;lle k&ouml;nnen &uuml;ber folgende Wege gemeldet werden:<br />
-                            Telefon: <a href="tel:+496612500070">+49 661 25000 70</a><br />
-                            E-Mail: <a href="mailto:support@nethinks.com">support@nethinks.com</a><br />
+                            {% if not support %}
+                                Please see the <a href="https://github.com/NETHINKS/opennms-docker-env">Github Project</a> 
+                                for further informations.
+                            {% endif %}
+
+                            {% if support %}
+                                {{ support|replace("\n", "<br />") }}
+                            {% endif %}
                         </p>
                     </div>
                 </div>

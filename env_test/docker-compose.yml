@@ -134,13 +134,28 @@ services:
           - ./init/opennms:/data/init
     nginx:
         depends_on: []
-        image: nethinks/opennmsenv-nginx:1.10.2-1
+        image: nethinks/opennmsenv-nginx:1.10.2-2
         build: ../images/nginx
         ports:
         - 80:80
         - 443:443
         privileged: false
         restart: always
+        environment:
+          INIT_SSL_CN: "localhost"
+          INIT_SSL_ORG: "NETHINKS GmbH"
+          INIT_SSL_UNIT: "PSS"
+          INIT_SSL_COUNTRY: "DE"
+          INIT_SSL_STATE: "HESSE"
+          INIT_SSL_LOCATION: "FULDA"
+          INIT_SSL_VALIDDAYS: "3650"
+          INIT_SSL_KEYLENGTH: "4096"
+          INIT_SSL_DIGEST: "sha384"
+          CONF_SUPPORTTEXT: "OpenNMS Support Contract\n01.01.2017 - 31.12.2018\nPhone: 0123456789\nsupport@example.com"
+          CONF_LOCATION_10: "OpenNMS;/opennms;http://opennms:8980"
+          CONF_LOCATION_11: "Grafana;/grafana/;http://grafana:3000/"
+          CONF_LOCATION_12: "AlarmForwarder;/alarmforwarder/;http://alarmforwarder:5000/"
+          CONF_LOCATION_13: "yourDashboard;/yourdashboard;http://yourdashboard"
         volumes:
         - export:/data/export
         - nginx:/data/container

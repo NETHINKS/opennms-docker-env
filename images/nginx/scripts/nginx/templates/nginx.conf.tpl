@@ -39,8 +39,8 @@ http
         listen              443 ssl;
         server_name	        localhost;
 
-        ssl_certificate     proxy.crt;
-        ssl_certificate_key proxy.key;
+        ssl_certificate     /data/container/ssl/proxy.crt;
+        ssl_certificate_key /data/container/ssl/proxy.key;
 
             # root location
             location /
@@ -52,7 +52,7 @@ http
             # start page
             location /start
             {
-                root /data/container/www;
+                root /opt/www;
             }
 
         # reverse proxy configuration

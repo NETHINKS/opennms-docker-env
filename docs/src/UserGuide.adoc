@@ -426,14 +426,11 @@ docker-compose.yml
 /init
   /nginx
     /etc
-    /www
+      /ssl
 ----
 
-==== etc
-Configuration files (e.g. nginx.conf or SSL certificates) can be placed in _etc_ for an initial import.
-
-==== www
-In _www_, files for a HTTP access can be placed.
+==== etc/ssl
+SSL certificate (name *proxy.crt*) and key (name *proxy.key*) can be placed here for an import.
 
 
 

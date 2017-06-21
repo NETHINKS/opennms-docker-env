@@ -9,12 +9,14 @@
 #                                                                        #
 ##########################################################################
 
-if [ -f /data/container/initflags/init ]; then
-    /opt/containerscripts/prestart.sh 
-else
+# init on first start
+if [ ! -f /data/container/initflags/init ]; then
     /opt/containerscripts/init.sh
     touch /data/container/initflags/init
 fi
+
+# prestart
+/opt/containerscripts/prestart.sh 
 
 # start nginx
 nginx -g "daemon off;"

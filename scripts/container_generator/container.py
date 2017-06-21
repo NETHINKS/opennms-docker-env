@@ -269,7 +269,7 @@ class Nginx(Container):
 
     def setup_container(self):
         # container config
-        self._container_config.set_image("nethinks/opennmsenv-nginx:1.10.2-1")
+        self._container_config.set_image("nethinks/opennmsenv-nginx:1.10.2-2")
         if self._app_config.get_value_boolean("setup", "build_images"):
             self._container_config.set_build_path("../../../images/nginx")
         self._container_config.set_restart_policy("always")
@@ -280,68 +280,33 @@ class Nginx(Container):
         self._container_config.add_volume("export:/data/export")
         self._container_config.add_volume("./init/nginx:/data/init")
 
-        # create nginx.conf
-        template_engine = TemplateEngine()
-        template_context = {}
-        template_context["locations"] = self.__proxy_locations
-        for location in template_context["locations"]:
-            if location["location"].endswith("/"):
-                location["trailing_slash"] = True
-                location["url"] = location["url"].rstrip("/")
-        config_file_dir = self._container_outputdir + "/etc"
-        os.makedirs(config_file_dir, exist_ok=True)
-        config_file_name = config_file_dir + "/nginx.conf"
-        template_engine.render_template_to_file("templates/container/nginx/nginx.conf.tpl",
-                                                config_file_name, template_context)
+        self._container_config.add_environment("INIT_SSL_CN",
+                                               self._container_parameters["ssl_cn"])
+        self._container_config.add_environment("INIT_SSL_ORG",
+                                               self._container_parameters["ssl_organisation"])
+        self._container_config.add_environment("INIT_SSL_UNIT",
+                                               self._container_parameters["ssl_unit"])
+        self._container_config.add_environment("INIT_SSL_COUNTRY",
+                                               self._container_parameters["ssl_country"])
+        self._container_config.add_environment("INIT_SSL_STATE",
+                                               self._container_parameters["ssl_state"])
+        self._container_config.add_environment("INIT_SSL_LOCATION",
+                                               self._container_parameters["ssl_location"])
+        self._container_config.add_environment("INIT_SSL_VALIDDAYS",
+                                               self._container_parameters["ssl_valid_time_days"])
+        self._container_config.add_environment("INIT_SSL_KEYLENGTH",
+                                               self._container_parameters["ssl_keylength"])
+        self._container_config.add_environment("INIT_SSL_DIGEST",
+                                               self._container_parameters["ssl_digest"])
+        self._container_config.add_environment("CONF_SUPPORTTEXT",
+                                               self._container_parameters["support_text"])
 
-        # create SSL key, certificate and CSR
-        ssl_key = crypto.PKey()
-        ssl_key.generate_key(crypto.TYPE_RSA, int(self._container_parameters["ssl_keylength"]))
-
-        ssl_csr = crypto.X509Req()
-        ssl_csr.get_subject().C = self._container_parameters["ssl_country"]
-        ssl_csr.get_subject().ST = self._container_parameters["ssl_state"]
-        ssl_csr.get_subject().L = self._container_parameters["ssl_location"]
-        ssl_csr.get_subject().O = self._container_parameters["ssl_organisation"]
-        ssl_csr.get_subject().OU = self._container_parameters["ssl_unit"]
-        ssl_csr.get_subject().CN = self._container_parameters["ssl_cn"]
-        ssl_csr.set_pubkey(ssl_key)
-        ssl_csr.sign(ssl_key, self._container_parameters["ssl_digest"])
-
-        ssl_certificate = crypto.X509()
-        ssl_certificate.get_subject().C = self._container_parameters["ssl_country"]
-        ssl_certificate.get_subject().ST = self._container_parameters["ssl_state"]
-        ssl_certificate.get_subject().L = self._container_parameters["ssl_location"]
-        ssl_certificate.get_subject().O = self._container_parameters["ssl_organisation"]
-        ssl_certificate.get_subject().OU = self._container_parameters["ssl_unit"]
-        ssl_certificate.get_subject().CN = self._container_parameters["ssl_cn"]
-        ssl_certificate.gmtime_adj_notBefore(0)
-        ssl_certificate.gmtime_adj_notAfter(int(self._container_parameters["ssl_valid_time_days"])
-                                            * 24 * 60 * 60)
-        ssl_certificate.set_pubkey(ssl_key)
-        ssl_certificate.set_issuer(ssl_certificate.get_subject())
-        ssl_certificate.set_serial_number(int(time.time()))
-        ssl_certificate.sign(ssl_key, self._container_parameters["ssl_digest"])
-
-        sslcsr_file_name = config_file_dir + "/proxy.csr"
-        sslcert_file_name = config_file_dir + "/proxy.crt"
-        sslkey_file_name = config_file_dir + "/proxy.key"
-        with open(sslcsr_file_name, "wb") as sslcsr_file:
-            sslcsr_file.write(crypto.dump_certificate_request(crypto.FILETYPE_PEM,
-                                                              ssl_csr))
-        with open(sslcert_file_name, "wb") as sslcert_file:
-            sslcert_file.write(crypto.dump_certificate(crypto.FILETYPE_PEM,
-                                                       ssl_certificate))
-        with open(sslkey_file_name, "wb") as sslkey_file:
-            sslkey_file.write(crypto.dump_privatekey(crypto.FILETYPE_PEM, ssl_key))
-
-        # create website with support infos
-        template_engine = TemplateEngine()
-        template_context = {}
-        template_context["locations"] = self.__proxy_locations
-        template_context["parameters"] = self._container_parameters
-        web_file_dir = self._container_outputdir + "/www/start"
-        template_engine.render_directory("templates/container/nginx/www/start", web_file_dir, template_context)
+        i = 10
+        for location in self.__proxy_locations:
+            location_varname = "CONF_LOCATION_" + str(i)
+            location_value = location["name"] + ";" +  location["location"] + ";" + location["url"]
+            self._container_config.add_environment(location_varname, location_value)
+            i += 1
 
     def set_proxy_locations(self, proxy_locations):
         """Method for adding proxy locations
@@ -349,6 +314,7 @@ class Nginx(Container):
         This method must be executed before the setup_container() method
         """
         self.__proxy_locations.extend(proxy_locations)
+
 
 class Grafana(Container):
     """Class for defining a container for Grafana
