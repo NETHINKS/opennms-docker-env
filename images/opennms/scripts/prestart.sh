@@ -10,9 +10,9 @@
 ##########################################################################
 
 # init environment variables
-if [ -z ${INIT_DB_SERVER+x} ]; then DB_SERVER=dbserver; fi
-if [ -z ${INIT_DB_USER+x} ]; then DB_USER=postgres; fi
-if [ -z ${INIT_DB_PASSWORD+x} ]; then DB_PASSWORD=secret; fi
+if [ -z ${INIT_DB_SERVER+x} ]; then INIT_DB_SERVER=dbserver; fi
+if [ -z ${INIT_DB_USER+x} ]; then INIT_DB_USER=postgres; fi
+if [ -z ${INIT_DB_PASSWORD+x} ]; then INIT_DB_PASSWORD=secret; fi
 if [ -z ${INIT_CASSANDRA_ENABLE+x} ]; then INIT_CASSANDRA_ENABLE=false; fi
 if [ -z ${INIT_CASSANDRA_SERVER+x} ]; then INIT_CASSANDRA_SERVER=cassandra; fi
 if [ -z ${INIT_CASSANDRA_USER+x} ]; then INIT_CASSANDRA_USER=cassandra; fi
