@@ -9,12 +9,11 @@
 #                                                                        #
 ##########################################################################
 
-if [ -f /data/container/initflags/init ]; then
-    /opt/containerscripts/prestart.sh 
-else
+if [ ! -f /data/container/initflags/init ]; then
     /opt/containerscripts/init.sh
     touch /data/container/initflags/init
 fi
+/opt/containerscripts/prestart.sh 
 
 # start crond in background
 /usr/sbin/crond -s
