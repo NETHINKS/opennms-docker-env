@@ -3,6 +3,8 @@ MAINTAINER NETHINKS GmbH <support@nethinks.com>
 
 ARG build_locale=de_DE
 ARG build_timezone=Europe/Berlin
+ARG url_sw_cassandra=http://archive.apache.org/dist/cassandra/3.0.14/apache-cassandra-3.0.14-bin.tar.gz
+ARG url_sw_jdk=http://yum.opennms.org/stable/common/jdk/x64/jdk-8u112-linux-x64.rpm
 
 # set locales
 RUN localedef -c -i ${build_locale} -f UTF-8 ${build_locale}.utf-8 \
@@ -12,16 +14,16 @@ RUN localedef -c -i ${build_locale} -f UTF-8 ${build_locale}.utf-8 \
 ENV LANG ${build_locale}.utf8
 
 # install Apache Cassandra and Oracle Java
-RUN curl -fsSLO -H "Cookie: oraclelicense=accept-securebackup-cookie" http://download.oracle.com/otn-pub/java/jdk/8u112-b15/jdk-8u112-linux-x64.rpm \
-    && yum -y install jdk-8u112-linux-x64.rpm \
-    && rm -f jdk-8u112-linux-x64.rpm \
+RUN curl -fsSLo oracle-jdk.rpm ${url_sw_jdk} \
+    && yum -y install oracle-jdk.rpm \
+    && rm -f oracle-jdk.rpm \
     && yum -y install psmisc.x86_64 \
     # install Apache Cassandra
-    && curl -fsSLO http://www-eu.apache.org/dist/cassandra/3.10/apache-cassandra-3.10-bin.tar.gz \
-    && tar -xzvf apache-cassandra-3.10-bin.tar.gz -C /opt \
-    && mv /opt/apache-cassandra-3.10 /opt/cassandra \
+    && curl -fsSLo apache-cassandra.tar.gz ${url_sw_cassandra} \
+    && tar -xzvf apache-cassandra.tar.gz -C /opt \
+    && mv /opt/apache-cassandra-* /opt/cassandra \
     && rm -Rf /opt/cassandra/javadoc \
-    && rm -f apache-cassandra-3.10-bin.tar.gz \
+    && rm -f apache-cassandra.tar.gz \
     # create directories for data
     && mkdir -p /data/init \
     && mkdir -p /data/export \

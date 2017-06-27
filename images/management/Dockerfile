@@ -3,6 +3,7 @@ MAINTAINER NETHINKS GmbH <support@nethinks.com>
 
 ARG build_locale=de_DE
 ARG build_timezone=Europe/Berlin
+ARG url_sw_docker=https://get.docker.com/builds/Linux/x86_64/docker-17.03.1-ce.tgz
 
 # set locales
 RUN localedef -c -i ${build_locale} -f UTF-8 ${build_locale}.utf-8 \
@@ -16,9 +17,9 @@ RUN yum install -y openssh-server.x86_64 less.x86_64 net-snmp-utils.x86_64 bind-
     telnet.x86_64 tcpdump.x86_64 openssl.x86_64 traceroute.x86_64 samba-client.x86_64 \
     openssh-clients.x86_64 ftp.x86_64 vim-enhanced.x86_64 cronie.x86_64 \
     && ssh-keygen -t rsa -f /etc/ssh/ssh_host_rsa_key -N '' \
-    && curl -fsSLO https://get.docker.com/builds/Linux/x86_64/docker-17.03.1-ce.tgz \
-    && tar --strip-components=1 -xvzf docker-17.03.1-ce.tgz -C /usr/local/bin \
-    && rm /docker-17.03.1-ce.tgz \
+    && curl -fsSLo docker.tgz ${url_sw_docker} \
+    && tar --strip-components=1 -xvzf docker.tgz -C /usr/local/bin \
+    && rm /docker.tgz \
     && mkdir -p /data/container/etc \
     && mkdir -p /data/container/tmp \
     && mkdir -p /data/container/initflags \

@@ -3,6 +3,8 @@ MAINTAINER NETHINKS GmbH <support@nethinks.com>
 
 ARG build_locale=de_DE
 ARG build_timezone=Europe/Berlin
+ARG url_sw_jdk=http://yum.opennms.org/stable/common/jdk/x64/jdk-8u112-linux-x64.rpm
+ARG url_sw_pris=https://github.com/OpenNMS/opennms-provisioning-integration-server/releases/download/1.1.5/opennms-pris-dist-1.1.5-release-archive.tar.gz
 
 # set locales
 RUN localedef -c -i ${build_locale} -f UTF-8 ${build_locale}.utf-8 \
@@ -12,14 +14,14 @@ RUN localedef -c -i ${build_locale} -f UTF-8 ${build_locale}.utf-8 \
 ENV LANG ${build_locale}.utf8
 
 # install PRIS and Orcale Java
-RUN curl -fsSLO -H "Cookie: oraclelicense=accept-securebackup-cookie" http://download.oracle.com/otn-pub/java/jdk/8u112-b15/jdk-8u112-linux-x64.rpm \
-    && yum -y install jdk-8u112-linux-x64.rpm \
-    && rm jdk-8u112-linux-x64.rpm \
+RUN curl -fsSLo orcale-jdk.rpm ${url_sw_jdk} \
+    && yum -y install orcale-jdk.rpm \
+    && rm orcale-jdk.rpm \
     # install PRIS software
-    && curl -fsSLO https://github.com/OpenNMS/opennms-provisioning-integration-server/releases/download/1.1.5/opennms-pris-dist-1.1.5-release-archive.tar.gz \
-    && tar -xzvf opennms-pris-dist-1.1.5-release-archive.tar.gz -C /opt \
-    && mv /opt/opennms-pris-dist-1.1.5 /opt/opennms-pris \
-    && rm -f opennms-pris-dist-1.1.5-release-archive.tar.gz \
+    && curl -fsSLo opennms-pris.tar.gz ${url_sw_pris} \
+    && tar -xzvf opennms-pris.tar.gz -C /opt \
+    && mv /opt/opennms-pris-dist-* /opt/opennms-pris \
+    && rm -f opennms-pris.tar.gz \
     # create directories for data
     && mkdir -p /data/init \
     && mkdir -p /data/export \

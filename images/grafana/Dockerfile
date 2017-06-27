@@ -3,6 +3,7 @@ MAINTAINER NETHINKS GmbH <support@nethinks.com>
 
 ARG build_locale=de_DE
 ARG build_timezone=Europe/Berlin
+ARG url_sw_grafana=https://grafanarel.s3.amazonaws.com/builds/grafana-3.1.1-1470047149.linux-x64.tar.gz
 
 # set locales
 RUN localedef -c -i ${build_locale} -f UTF-8 ${build_locale}.utf-8 \
@@ -13,10 +14,10 @@ ENV LANG ${build_locale}.utf8
 
 # install Grafana
 RUN yum -y install psmisc.x86_64 \
-    && curl -fsSLO https://grafanarel.s3.amazonaws.com/builds/grafana-3.1.1-1470047149.linux-x64.tar.gz \
-    && tar -xzvf grafana-3.1.1-1470047149.linux-x64.tar.gz -C /opt \
-    && rm -f grafana-3.1.1-1470047149.linux-x64.tar.gz \
-    && mv /opt/grafana-3.1.1-1470047149 /opt/grafana \
+    && curl -fsSLo grafana.tar.gz ${url_sw_grafana} \
+    && tar -xzvf grafana.tar.gz -C /opt \
+    && rm -f grafana.tar.gz \
+    && mv /opt/grafana-* /opt/grafana \
     && cp /opt/grafana/conf/sample.ini /opt/grafana/conf/custom.ini \
     # create directories for data
     && mkdir -p /data/init \

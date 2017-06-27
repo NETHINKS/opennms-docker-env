@@ -45,7 +45,7 @@ services:
           - postgres:/data/container
           - ./init/postgres:/data/init
     cassandra:
-        image: nethinks/opennmsenv-cassandra:3.10-1
+        image: nethinks/opennmsenv-cassandra:3.0.14-1
         build: ../images/cassandra
         environment:
           CASSANDRA_USER: "cassandra"

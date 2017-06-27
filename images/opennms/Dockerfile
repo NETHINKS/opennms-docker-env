@@ -4,6 +4,7 @@ MAINTAINER NETHINKS GmbH <support@nethinks.com>
 ARG build_locale=de_DE
 ARG build_timezone=Europe/Berlin
 ARG build_customrepo
+ARG url_sw_cassandra=http://archive.apache.org/dist/cassandra/3.0.14/apache-cassandra-3.0.14-bin.tar.gz
 
 # set locales
 RUN localedef -c -i ${build_locale} -f UTF-8 ${build_locale}.utf-8 \
@@ -78,11 +79,11 @@ RUN if [ ${build_customrepo} ]; \
     && mkdir /opt/opennms/jetty-webapps \
     && mkdir /opt/opennms/lib \
     # install Apache Cassandra to use the cqlsh client
-    && curl -fsSLO http://www-eu.apache.org/dist/cassandra/3.10/apache-cassandra-3.10-bin.tar.gz \
-    && tar -xzvf apache-cassandra-3.10-bin.tar.gz -C /opt \
-    && mv /opt/apache-cassandra-3.10 /opt/cassandra \
+    && curl -fsSLo apache-cassandra.tar.gz ${url_sw_cassandra} \
+    && tar -xzvf apache-cassandra.tar.gz -C /opt \
+    && mv /opt/apache-cassandra-* /opt/cassandra \
     && rm -Rf /opt/cassandra/javadoc \
-    && rm -f apache-cassandra-3.10-bin.tar.gz \
+    && rm -f apache-cassandra.tar.gz \
     # cleanup for a smaller Docker image
     && yum -y clean all
  
