@@ -133,6 +133,7 @@ class OpenNMS(Container):
         if self._app_config.get_value_boolean("setup", "build_images"):
             self._container_config.set_build_path("../../../images/opennms")
             self._container_config.add_buildarg("build_customrepo", "https://opennmsdeploy.nethinks.com/repo/horizon/18.0.4/")
+            self._container_config.add_buildarg("url_sw_cassandra", "https://opennmsdeploy.nethinks.com/software/cassandra/apache-cassandra-3.0.14-bin.tar.gz")
         self._container_config.set_privileged(True)
         self._container_config.set_restart_policy("always")
         self._container_config.add_environment("INIT_DB_SERVER",
@@ -220,9 +221,11 @@ class Cassandra(Container):
 
     def setup_container(self):
         # container config
-        self._container_config.set_image("nethinks/opennmsenv-cassandra:3.10-1")
+        self._container_config.set_image("nethinks/opennmsenv-cassandra:3.0.14-1")
         if self._app_config.get_value_boolean("setup", "build_images"):
             self._container_config.set_build_path("../../../images/cassandra")
+            self._container_config.add_buildarg("url_sw_cassandra", "https://opennmsdeploy.nethinks.com/software/cassandra/apache-cassandra-3.0.14-bin.tar.gz")
+            self._container_config.add_buildarg("url_sw_jdk", "https://opennmsdeploy.nethinks.com/software/jdk/jdk-8u112-linux-x64.rpm")
         self._container_config.set_restart_policy("always")
         self._container_config.add_environment("CASSANDRA_USER",
                                                self._container_parameters["cassandra_user"])
@@ -348,6 +351,7 @@ class Grafana(Container):
         self._container_config.set_image("nethinks/opennmsenv-grafana:3.1.1-1")
         if self._app_config.get_value_boolean("setup", "build_images"):
             self._container_config.set_build_path("../../../images/grafana")
+            self._container_config.add_buildarg("url_sw_grafana", "https://opennmsdeploy.nethinks.com/software/grafana/grafana-3.1.1-1470047149.linux-x64.tar.gz")
         self._container_config.set_restart_policy("always")
         self._container_config.add_environment("ADMIN_PASSWORD",
                                                self._container_parameters["admin_password"])
@@ -483,6 +487,8 @@ class Pris(Container):
         self._container_config.set_image("nethinks/opennmsenv-pris:1.1.5-1")
         if self._app_config.get_value_boolean("setup", "build_images"):
             self._container_config.set_build_path("../../../images/pris")
+            self._container_config.add_buildarg("url_sw_pris", "https://opennmsdeploy.nethinks.com/software/pris/opennms-pris-dist-1.1.5-release-archive.tar.gz")
+            self._container_config.add_buildarg("url_sw_jdk", "https://opennmsdeploy.nethinks.com/software/jdk/jdk-8u112-linux-x64.rpm")
         self._container_config.set_restart_policy("always")
         self._container_namedvolumes.append("pris")
         self._container_config.add_volume("pris:/data/container")
@@ -546,6 +552,7 @@ class Management(Container):
         self._container_config.set_image("nethinks/opennmsenv-management:1.1.0-1")
         if self._app_config.get_value_boolean("setup", "build_images"):
             self._container_config.set_build_path("../../../images/management")
+            self._container_config.add_buildarg("url_sw_docker", "https://opennmsdeploy.nethinks.com/software/docker/docker-17.03.1-ce.tgz")
         self._container_config.set_restart_policy("always")
         self._container_config.add_port("2222:22")
         self._container_config.add_environment("CONF_SSH_PASSWORD",
