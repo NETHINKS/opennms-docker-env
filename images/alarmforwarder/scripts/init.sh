@@ -19,6 +19,15 @@ if [ -z ${ONMS_URL+x} ]; then ONMS_URL="http://opennms:8980/opennms/rest"; fi
 if [ -z ${ONMS_USER+x} ]; then ONMS_USER="api"; fi
 if [ -z ${ONMS_PASSWORD+x} ]; then ONMS_PASSWORD="api"; fi
 
+# init configuration: copy files from etc if exist
+if [ -d /data/init/etc ] ; then
+    FILECOUNT_CONF=$(ls -1 /data/init/etc | wc -l)
+    if [ $FILECOUNT_CONF -gt 0 ]
+        then
+            cp -R /data/init/etc/* /opt/opennms_alarmforwarder/etc
+    fi
+fi
+
 # execute prestart.sh
 /opt/containerscripts/prestart.sh
 

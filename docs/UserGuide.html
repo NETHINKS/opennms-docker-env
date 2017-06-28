@@ -1272,7 +1272,21 @@ The schema of an imported OpenNMS database will be updated automatically to the 
 <div class="sect2">
 <h3 id="_alarmforwarder">AlarmForwarder</h3>
 <div class="paragraph">
-<p>The AlarmForwarder container does not contain own data. All data were hold in the AlarmForwarder database, which will be imported into the Postgres container.</p>
+<p>Most of AlarmForwarder&#8217;s data were hold in the AlarmForwarder database, which will be imported into the Postgres container. The configuration can be imported usinig the following structure:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code>docker-compose.yml
+/init
+  /alarmforwarder
+    /etc</code></pre>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_etc_3">etc</h4>
+<div class="paragraph">
+<p>The AlarmForwarder configuration <em>alarmforwarder.conf</em> can be imported using this directory.</p>
+</div>
 </div>
 </div>
 <div class="sect2">
@@ -1399,7 +1413,7 @@ cqlsh -u <span class="tok-si">${</span><span class="tok-nv">CASSANDRA_USER</span
 </div>
 </div>
 <div class="sect3">
-<h4 id="_etc_3">etc</h4>
+<h4 id="_etc_4">etc</h4>
 <div class="paragraph">
 <p>Configuration files for <em>&lt;yourDashboard-Home&gt;/etc</em> can be placed in <em>etc</em>. Theses files will be imported on the container&#8217;s first start.</p>
 </div>
@@ -1410,7 +1424,7 @@ cqlsh -u <span class="tok-si">${</span><span class="tok-nv">CASSANDRA_USER</span
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-06-21 11:26:24 CEST
+Last updated 2017-06-28 14:38:16 CEST
 </div>
 </div>
 </body>

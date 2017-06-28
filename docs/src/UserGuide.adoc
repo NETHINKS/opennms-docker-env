@@ -450,7 +450,19 @@ The _etc_ directory can contain a configuration file for the automatic backup of
 
 
 === AlarmForwarder
-The AlarmForwarder container does not contain own data. All data were hold in the AlarmForwarder database, which will be imported into the Postgres container.
+Most of AlarmForwarder's data were hold in the AlarmForwarder database, which will be imported into the Postgres container. The configuration can be imported usinig the following structure:
+
+[source]
+----
+docker-compose.yml
+/init
+  /alarmforwarder
+    /etc
+----
+
+==== etc
+The AlarmForwarder configuration _alarmforwarder.conf_ can be imported using this directory.
+
 
 
 === Cassandra
