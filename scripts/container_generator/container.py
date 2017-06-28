@@ -145,7 +145,7 @@ class OpenNMS(Container):
         self._container_config.add_environment("INIT_ADMIN_USER", "admin")
         self._container_config.add_environment("INIT_ADMIN_PASSWORD",
                                                 self._container_parameters["user_admin_password"])
-        self._container_config.add_environment("INIT_API_USER", "admin")
+        self._container_config.add_environment("INIT_API_USER", "api")
         self._container_config.add_environment("INIT_API_PASSWORD",
                                                 self._container_parameters["user_api_password"])
         self._container_namedvolumes.append("opennms")
