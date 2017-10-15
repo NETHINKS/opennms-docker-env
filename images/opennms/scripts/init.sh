@@ -28,8 +28,8 @@ if [ -z ${INIT_API_PASSWORD+x} ]; then INIT_API_PASSWORD=api; fi
     > /data/container/etc/opennms-datasources.xml
 
 /opt/containerscripts/opennms/create_conf_users.py \
-    ${INIT_ADMIN_USER}:${INIT_ADMIN_PASSWORD} \
-    ${INIT_API_USER}:${INIT_API_PASSWORD} \
+    ${INIT_ADMIN_USER}:${INIT_ADMIN_PASSWORD}:ROLE_ADMIN \
+    ${INIT_API_USER}:${INIT_API_PASSWORD}:ROLE_USER \
     > /data/container/etc/users.xml
 
 /opt/containerscripts/opennms/create_conf_webbase.py \

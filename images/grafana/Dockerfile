@@ -1,9 +1,9 @@
-FROM centos:7.3.1611
+FROM centos:7.4.1708
 MAINTAINER NETHINKS GmbH <support@nethinks.com>
 
 ARG build_locale=de_DE
 ARG build_timezone=Europe/Berlin
-ARG url_sw_grafana=https://grafanarel.s3.amazonaws.com/builds/grafana-3.1.1-1470047149.linux-x64.tar.gz
+ARG url_sw_grafana=https://s3-us-west-2.amazonaws.com/grafana-releases/release/grafana-4.5.2.linux-x64.tar.gz
 
 # set locales
 RUN localedef -c -i ${build_locale} -f UTF-8 ${build_locale}.utf-8 \

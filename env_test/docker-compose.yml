@@ -48,12 +48,12 @@ services:
           - postgres:/data/container
           - ./init/postgres:/data/init
     cassandra:
-        image: nethinks/opennmsenv-cassandra:3.0.14-1
+        image: nethinks/opennmsenv-cassandra:3.0.14-2
         build: 
           context: ../images/cassandra
           args:
             url_sw_cassandra: https://opennmsdeploy.nethinks.com/software/cassandra/apache-cassandra-3.0.14-bin.tar.gz
-            url_sw_jdk: https://opennmsdeploy.nethinks.com/software/jdk/jdk-8u112-linux-x64.rpm
+            url_sw_jdk: https://opennmsdeploy.nethinks.com/software/jdk/jdk-8u144-linux-x64.rpm
         environment:
           CASSANDRA_USER: "cassandra"
           CASSANDRA_PASSWORD: "secret1234"
@@ -80,11 +80,11 @@ services:
           - alarmforwarder:/data/container
           - ./init/alarmforwarder:/data/init
     grafana:
-        image: nethinks/opennmsenv-grafana:3.1.1-1
+        image: nethinks/opennmsenv-grafana:4.5.2-1
         build: 
           context: ../images/grafana
           args:
-            url_sw_grafana: https://opennmsdeploy.nethinks.com/software/grafana/grafana-3.1.1-1470047149.linux-x64.tar.gz
+            url_sw_grafana: https://opennmsdeploy.nethinks.com/software/grafana/grafana-4.5.2.linux-x64.tar.gz
         environment:
           ADMIN_PASSWORD: "secret1234"
           ONMS_URL: "http://opennms:8980/opennms"
@@ -106,22 +106,22 @@ services:
           - yourdashboard:/data/container
           - ./init/yourdashboard:/data/init
     pris:
-        image: nethinks/opennmsenv-pris:1.1.5-1
+        image: nethinks/opennmsenv-pris:1.1.6-1
         build: 
           context: ../images/pris
           args:
-            url_sw_jdk: https://opennmsdeploy.nethinks.com/software/jdk/jdk-8u112-linux-x64.rpm
-            url_sw_pris: https://opennmsdeploy.nethinks.com/software/pris/opennms-pris-dist-1.1.5-release-archive.tar.gz
+            url_sw_jdk: https://opennmsdeploy.nethinks.com/software/jdk/jdk-8u144-linux-x64.rpm
+            url_sw_pris: https://opennmsdeploy.nethinks.com/software/pris/opennms-pris-dist-1.1.6-release-archive.tar.gz
         volumes:
           - export:/data/export
           - pris:/data/container
           - ./init/pris:/data/init
     opennms:
-        image: nethinks/opennmsenv-opennms:18.0.4-2
+        image: nethinks/opennmsenv-opennms:20.1.0-1
         build: 
           context: ../images/opennms
           args:
-            build_customrepo: https://opennmsdeploy.nethinks.com/repo/horizon/18.0.4/
+            build_customrepo: https://opennmsdeploy.nethinks.com/repo/horizon/20.1.0/
             url_sw_cassandra: https://opennmsdeploy.nethinks.com/software/cassandra/apache-cassandra-3.0.14-bin.tar.gz
         links:
           - postgres

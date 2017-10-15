@@ -1,10 +1,10 @@
-FROM centos:7.3.1611
+FROM centos:7.4.1708
 MAINTAINER NETHINKS GmbH <support@nethinks.com>
 
 ARG build_locale=de_DE
 ARG build_timezone=Europe/Berlin
 ARG url_sw_jdk=http://yum.opennms.org/stable/common/jdk/x64/jdk-8u112-linux-x64.rpm
-ARG url_sw_pris=https://github.com/OpenNMS/opennms-provisioning-integration-server/releases/download/1.1.5/opennms-pris-dist-1.1.5-release-archive.tar.gz
+ARG url_sw_pris=https://github.com/OpenNMS/opennms-provisioning-integration-server/releases/download/1.1.6/opennms-pris-dist-1.1.6-release-archive.tar.gz
 
 # set locales
 RUN localedef -c -i ${build_locale} -f UTF-8 ${build_locale}.utf-8 \

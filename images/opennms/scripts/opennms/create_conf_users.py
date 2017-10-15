@@ -17,14 +17,16 @@ def main():
     userdata["users"] = {}
     for user in arguments.users:
         userparts = user.split(":")
-        if len(userparts) < 2:
+        if len(userparts) < 3:
             continue
         username = userparts[0]
         password = hashlib.md5(userparts[1].encode("utf-8")).hexdigest().upper()
+        role = userparts[2]
         userdata["users"][username] = {
             "name": username,
             "description": "user " + username,
             "password": password,
+            "role": role
         }
 
     # create users.xml
